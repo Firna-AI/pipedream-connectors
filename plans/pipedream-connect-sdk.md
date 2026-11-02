@@ -1253,6 +1253,7 @@ Summary: the final checks and the review loop.
   - Finding 8: Connection webhooks have no documented signature. Severity
     Medium, effort Small. Recommended: B, an unauthenticated-event requirement.
     Open (2026-10-26): no answer yet.
+    Outcome (2026-11-02): B, chosen by the user. Milestone 16 applies it.
   - Finding 9: Trigger context timestamp rule can reject deliveries. Severity
     Medium, effort Small. Recommended: B, best-effort `ts` decoding.
     Outcome (2026-10-26): C.
@@ -1456,6 +1457,25 @@ Summary: the final checks and one review loop for Milestones 13 and 14.
     code as `Some(101)`. Separate branch.
   - Outside the scope: `crates/pipedream-cli`: a request to a closed port
     reports that the change "may have run". Separate branch.
+
+## Milestone 16: Connection webhook trust rule
+
+Summary: apply outcome B of finding 8, chosen by the user on 2026-11-02.
+Pipedream signs trigger deliveries, but it documents no signature for
+connection webhooks. Hosts treat a connection webhook as unauthenticated and
+confirm the account through the Connect API before they trust the event.
+
+Depends on: Milestone 15.
+
+- [ ] Docs: correct the architecture data flow and the scope sentence of the
+      webhook protocol, so that only trigger deliveries carry a documented
+      signature. Add the trust rule and its decision to the connection event
+      section of the webhook protocol. Update the webhooks crate README.
+- [ ] Validate the changed Markdown, run the complete gate, commit, and push.
+- [ ] Review the diff since `27ace2a` with the `implementation-review` skill
+      after the push. Apply the fix rule: fix the `fix now` findings, record
+      follow-up items for the rest, re-review once, and report.
+- [ ] Delete the plan, as the `plans` skill says.
 - [ ] Open the pull request when every other milestone TODO is ticked, or when
       the user asks for it.
 
