@@ -1481,6 +1481,23 @@ Depends on: Milestone 15.
   - Design call (2026-11-02, agent): the account retrieval rule covers
     `CONNECTION_SUCCESS` events only, because an error event carries no
     account. Error events stay unauthenticated.
+
+## Milestone 17: Follow-up items for deferred work
+
+Summary: on 2026-11-02 the user asked to move the work that is not urgent to
+follow-up items under `plans/follow-ups/`. This covers the four open items
+that wait for a user decision, the blocked lint follow-up, the problems
+outside the review scope, and the post-merge tasks.
+
+Depends on: Milestone 16.
+
+- [ ] Write one follow-up item for each open item, each blocked wider fix,
+      each problem outside the review scope, and each post-merge task.
+- [ ] Point each plan entry to its follow-up item, validate the Markdown,
+      commit, and push.
+- [ ] Review the diff since `ad1158b` with the `implementation-review` skill
+      after the push. Apply the fix rule: fix the `fix now` findings, record
+      follow-up items for the rest, re-review once, and report.
 - [ ] Delete the plan, as the `plans` skill says.
 - [ ] Open the pull request when every other milestone TODO is ticked, or when
       the user asks for it.
