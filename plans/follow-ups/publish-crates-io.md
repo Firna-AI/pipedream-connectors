@@ -115,13 +115,20 @@
      can yank a version, but it cannot delete it.
   9. Run `cargo publish --workspace`. Cargo gets the upload order from the
      workspace, as the background says.
-     - Risk: crates.io can reject `pipedream-connect` or
-       `pipedream-connect-webhooks`, or the index wait can time out. Either
-       stops the run after the upload of `pipedream-connect-types`.
-     - A second `cargo publish --workspace` then stops at once, because the
-       version of `pipedream-connect-types` already exists on crates.io.
-       Publish the other two with
-       `cargo publish --workspace --exclude pipedream-connect-types`.
+     - Risk: crates.io can reject a crate, or the index wait can time out.
+       Cargo uploads `pipedream-connect-types` first. It then uploads
+       `pipedream-connect` and `pipedream-connect-webhooks` in name order. So
+       a failure can stop the run after one upload or after two.
+     - A second `cargo publish --workspace` then stops at once, because a
+       version already exists on crates.io. To find the uploaded crates, run
+       `cargo publish --dry-run --workspace`. It warns
+       `crate <name>@<version> already exists` for each uploaded crate and
+       exits with status 0.
+     - Publish the rest with one `--exclude` for each uploaded crate, for
+       example
+       `cargo publish --workspace --exclude pipedream-connect-types --exclude pipedream-connect`.
+       After an index timeout, run the dry run again until it warns that
+       `pipedream-connect-types` exists, then resume.
   10. Check that docs.rs builds the docs of each crate.
   11. Tell the consumers that pin `internal-error` by git, such as Firna, to
       move to the crates.io release.
