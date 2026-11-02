@@ -1473,9 +1473,14 @@ Depends on: Milestone 15.
       section of the webhook protocol. Update the webhooks crate README.
 - [x] Validate the changed Markdown, run the complete gate, commit, and push.
       Evidence: `.context/pipedream-connect-sdk/gate-m16.log`.
-- [ ] Review the diff since `27ace2a` with the `implementation-review` skill
+- [x] Review the diff since `27ace2a` with the `implementation-review` skill
       after the push. Apply the fix rule: fix the `fix now` findings, record
       follow-up items for the rest, re-review once, and report.
+      Evidence: `.context/reviews/calummoore/pipedream-rust-sdk-plan/round-1-review.md`.
+  - Review: no findings, and nothing outside the scope.
+  - Design call (2026-11-02, agent): the account retrieval rule covers
+    `CONNECTION_SUCCESS` events only, because an error event carries no
+    account. Error events stay unauthenticated.
 - [ ] Delete the plan, as the `plans` skill says.
 - [ ] Open the pull request when every other milestone TODO is ticked, or when
       the user asks for it.
