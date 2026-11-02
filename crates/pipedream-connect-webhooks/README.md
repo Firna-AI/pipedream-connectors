@@ -1,8 +1,9 @@
 # pipedream-connect-webhooks
 
-`pipedream-connect-webhooks` verifies Pipedream Connect webhook signatures and
-models webhook events. Depend on it when a receiver needs webhook handling
-without the outbound API client.
+`pipedream-connect-webhooks` verifies Pipedream Connect trigger delivery
+signatures and models webhook events. Depend on it when a receiver needs
+webhook handling. The crate has no outbound API client. A receiver of
+connection webhooks also needs `pipedream-connect` to confirm each event.
 
 ## Responsibilities
 
@@ -14,15 +15,31 @@ without the outbound API client.
 
 The crate uses `pipedream-connect-types` for shared identifiers, account
 models, environments, and credential wrappers. It verifies the exact raw body
-with HMAC-SHA256 and a caller-supplied receipt time. The verifier defaults to a
-10 MiB body limit. Use `with_body_limit` to change it. The crate decodes
-connection events and trigger deliveries without an async runtime or HTTP
-server. A delivery without a context ID uses lowercase hexadecimal SHA-256 of
-the exact raw body as its stable event ID. `decode` uses the default 10 MiB
-body limit. Use `decode_with_limit` to select another limit. Both methods hash
-all raw body bytes.
+of a trigger delivery with HMAC-SHA256 and a caller-supplied receipt time. The
+verifier defaults to a 10 MiB body limit. Use `with_body_limit` to change it.
+The crate decodes connection events and trigger deliveries without an async
+runtime or HTTP server. A delivery without a context ID uses lowercase
+hexadecimal SHA-256 of the exact raw body as its stable event ID. `decode`
+uses the default 10 MiB body limit. Use `decode_with_limit` to select another
+limit. Both methods hash all raw body bytes.
 Direct serde decoding hashes the JSON value text without outer whitespace.
 Both decoding paths reject an invalid context ID.
+
+Pipedream signs trigger deliveries. It documents no signature for connection
+webhooks, so this crate cannot authenticate a `ConnectionEvent`. Treat each
+decoded connection event as unauthenticated. Confirm the account of a
+`CONNECTION_SUCCESS` event with `pipedream-connect` before the host acts on it:
+
+1. Build an `AccountRef` from the event's `account.id` and the external user
+   that the host expects. An example is the external user that the host sent
+   when it created the Connect token.
+2. Pass it to `AccountsApi::get_owned` through `PipedreamClient::accounts()`.
+   The call fails when the account does not exist. It returns a `NotFound`
+   error when the account belongs to another external user or has no
+   `external_id`.
+3. When the host relies on the app, compare the app of the returned account
+   with the expected app.
+4. Read account fields from the returned account, not from the payload.
 
 Session identifiers and trigger event JSON use `RawJson`. Top-level unknown
 fields in connection and trigger payloads, and unknown fields in trigger
