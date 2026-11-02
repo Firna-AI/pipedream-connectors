@@ -1467,11 +1467,12 @@ confirm the account through the Connect API before they trust the event.
 
 Depends on: Milestone 15.
 
-- [ ] Docs: correct the architecture data flow and the scope sentence of the
+- [x] Docs: correct the architecture data flow and the scope sentence of the
       webhook protocol, so that only trigger deliveries carry a documented
       signature. Add the trust rule and its decision to the connection event
       section of the webhook protocol. Update the webhooks crate README.
-- [ ] Validate the changed Markdown, run the complete gate, commit, and push.
+- [x] Validate the changed Markdown, run the complete gate, commit, and push.
+      Evidence: `.context/pipedream-connect-sdk/gate-m16.log`.
 - [ ] Review the diff since `27ace2a` with the `implementation-review` skill
       after the push. Apply the fix rule: fix the `fix now` findings, record
       follow-up items for the rest, re-review once, and report.
