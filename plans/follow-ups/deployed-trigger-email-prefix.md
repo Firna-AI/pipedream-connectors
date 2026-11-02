@@ -26,8 +26,8 @@
   - **Email interface:** the emitter of an email trigger, with a unique email
     address that emits an event for each email, and an ID that starts with
     `ei_`.
-  - **Trigger ID call:** one of the ten SDK methods that take a deployed
-    trigger ID of the type `DeployedTriggerId`, such as `get` or `delete`.
+  - **Trigger ID call:** one of the SDK methods that take a deployed trigger
+    ID of the type `DeployedTriggerId`, such as `get` or `delete`.
   - **Common identifier grammar:** the path-safe rule that `common_identifier`
     in `ids.rs` checks: 1 to 250 visible ASCII bytes, without `/`, `\`, `?`,
     or `#`, and not `.` or `..`.
@@ -76,9 +76,14 @@
   - The trait `DeployedTriggersApi` in
     `crates/pipedream-connect/src/resources/deployed_triggers.rs` has eleven
     methods. Only `list` takes no trigger ID.
-  - The ten trigger ID calls are `get`, `update`, `delete`, `list_events`,
-    `get_workflows`, `set_workflows`, `list_webhooks`, `set_webhooks`,
-    `get_webhook`, and `regenerate_webhook_signing_key`.
+  - On 2026-11-02 the SDK had ten trigger ID calls: `get`, `update`,
+    `delete`, `list_events`, `get_workflows`, `set_workflows`,
+    `list_webhooks`, `set_webhooks`, `get_webhook`, and
+    `regenerate_webhook_signing_key`.
+  - The OpenAPI refresh in `plans/follow-ups/openapi-fixture-refresh.md`
+    adds an eleventh trigger ID call. It sends the new operation
+    `resetDeployedTriggerWebhookDeliveryState`, whose path holds a deployed
+    trigger ID.
   - The CLI uses the same type. `triggers get`, `triggers delete`, and
     `triggers events` exit with code 2 for an `ei_` ID. They print
     `error: <TRIGGER> is not a valid deployed trigger ID.` and the hint
@@ -107,7 +112,7 @@
   or webhooks, through the SDK.
 - **Impact if no action:** A host can deploy and list an email trigger, but it
   cannot remove the trigger through the SDK. Each host that offers email
-  triggers must build the ten trigger ID calls itself, and the CLI cannot send
+  triggers must build each trigger ID call itself, and the CLI cannot send
   them.
 - **Root question:** How does the SDK accept the ID of every deployed trigger
   that Pipedream creates, while each ID stays safe in a URL path?
@@ -173,7 +178,9 @@
   - `plans/follow-ups/openapi-fixture-refresh.md`, same code. The OpenAPI copy
     lacks the email interface, and so does the live document of 2026-11-02.
     So that refresh does not fix this item. D needs one more refresh after
-    Pipedream adds the schema.
+    Pipedream adds the schema. The refresh also adds the call for
+    `resetDeployedTriggerWebhookDeliveryState`, which takes a deployed
+    trigger ID. So the rule that this item picks applies to that call too.
 - **Recommendation:** C. It accepts every ID that Pipedream creates, as the
   OpenAPI path parameter does, and it keeps each ID safe in a URL path.
 - **Action:** ask the user, because each option adds a prefix or ends the

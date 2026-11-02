@@ -62,6 +62,31 @@
       required by package `pipedream-connect-types v0.1.0 (...)`
     ```
 
+  - When Cargo packages `pipedream-connect` or `pipedream-connect-webhooks`,
+    it replaces their path dependency on `pipedream-connect-types` with a
+    crates.io dependency. So `cargo publish --dry-run -p <crate>` for one of
+    them fails with "no matching package named `pipedream-connect-types`
+    found" until that crate is on crates.io. This holds also after
+    `internal-error` is on crates.io.
+  - Cargo 1.95.0 is the pinned toolchain in `rust-toolchain.toml`. With
+    `--workspace`, `cargo publish` handles the dependency between the library
+    crates itself:
+    - It packages and verifies all three library packages before the first
+      upload. It takes the unpublished `pipedream-connect-types` from a
+      temporary local registry under `target/package/tmp-registry`.
+    - It skips `pipedream-cli` and `xtask`, because they set
+      `publish = false`.
+    - It uploads `pipedream-connect-types` first. It then waits up to 60
+      seconds until the crates.io index lists that crate, and only then
+      uploads `pipedream-connect` and `pipedream-connect-webhooks`.
+    - When the index does not list the first crate in time, Cargo stops with
+      "unable to publish ... due to a timeout while waiting for published
+      dependencies to be available."
+    - On 2026-11-02 a scratch workspace with Cargo 1.95.0 showed this. The
+      dry run of a dependent crate alone failed. The dry run of the whole
+      workspace passed, and it listed first the upload of the crate that the
+      other two depend on. The wait and the timeout text come from the
+      `cargo publish` source of Cargo 1.95.0.
   - On 2026-11-02 `cargo package --list` showed no license file in any
     library package. Each package held only `.cargo_vcs_info.json`,
     `Cargo.lock`, `Cargo.toml`, `Cargo.toml.orig`, `README.md`, `src/`, and
@@ -84,11 +109,19 @@
      its options. Check the result with `cargo package --list -p <crate>`.
   5. Do the task in `plans/follow-ups/rustdoc-absolute-readme-links.md` first.
   6. Check that the three crate names are still free on crates.io.
-  7. Run `cargo publish --dry-run -p <crate>` for each library crate.
+  7. Run `cargo publish --dry-run --workspace`. It packages and verifies the
+     three library packages together and uploads nothing.
   8. Get the approval of the user. A crates.io release is public. crates.io
      can yank a version, but it cannot delete it.
-  9. Publish `pipedream-connect-types` first. Then publish
-     `pipedream-connect` and `pipedream-connect-webhooks`.
+  9. Run `cargo publish --workspace`. Cargo gets the upload order from the
+     workspace, as the background says.
+     - Risk: crates.io can reject `pipedream-connect` or
+       `pipedream-connect-webhooks`, or the index wait can time out. Either
+       stops the run after the upload of `pipedream-connect-types`.
+     - A second `cargo publish --workspace` then stops at once, because the
+       version of `pipedream-connect-types` already exists on crates.io.
+       Publish the other two with
+       `cargo publish --workspace --exclude pipedream-connect-types`.
   10. Check that docs.rs builds the docs of each crate.
   11. Tell the consumers that pin `internal-error` by git, such as Firna, to
       move to the crates.io release.

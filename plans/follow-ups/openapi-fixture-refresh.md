@@ -157,7 +157,22 @@
   - The user answered the question on JWT client authentication, or a
     follow-up item records it.
   - `cargo xtask check` passes.
-- **Related:** `plans/follow-ups/emitter-date-unit.md`, same code. The live
-  document still says "epoch milliseconds" for the emitter dates, so this
-  refresh does not settle that item. A size rule from that item also removes
-  the need for the seconds decoder of step 5.
+- **Related:**
+  - `plans/follow-ups/emitter-date-unit.md`, same code. The live document
+    still says "epoch milliseconds" for the emitter dates, so this refresh
+    does not settle that item. A size rule from that item also removes the
+    need for the seconds decoder of step 5.
+  - `plans/follow-ups/deployed-trigger-email-prefix.md`, same code. That item
+    asks how the SDK accepts the IDs of email triggers, which start with
+    `ei_`. The live document of 2026-11-02 has no email interface, so this
+    refresh does not settle that item. The new reset call for
+    `resetDeployedTriggerWebhookDeliveryState` takes a deployed trigger ID,
+    so the trigger ID rule that the other item picks applies to it.
+  - `plans/follow-ups/workflows-shutdown.md`, the same cause. Pipedream
+    Workflows shut down on 2027-03-31. That item leaves the deployed-trigger
+    workflow routes to this refresh: `listDeployedTriggerWorkflows`,
+    `updateDeployedTriggerWorkflows`, and the `workflow_id` of a trigger
+    deploy. The live document of 2026-11-02 still has them. When a refresh
+    finds them gone, it removes their client methods, protocol rows, golden
+    wire rows, and tests. Get the approval of the user first, because the
+    removal deletes functionality.

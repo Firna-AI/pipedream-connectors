@@ -57,16 +57,34 @@
   - **C.** Change nothing until the first publish. The repository holds the
     text, and the `license` field names MIT. A publish before the fix ships
     packages without the text. Effort: Small.
+  - **D.** Add a step to the gate `cargo xtask check` that fails when a
+    library package leaves out `LICENSE`. It catches a new library crate
+    that has no license file.
+    - Check the file list with `cargo package --list -p <package>`. A full
+      `cargo package` run looks up `internal-error` on crates.io and fails
+      with "no matching package named `internal-error` found".
+    - After `internal-error` is on crates.io, one gate step can run
+      `cargo publish --dry-run --workspace` and check the file list of each
+      package that it writes under `target/package/`. That step also
+      verifies that the packages build. A dry run only warns when a version
+      already exists, so the step keeps working after the first release.
+      Each run of that step reads the crates.io index and builds the three
+      packages again.
+    - The dry run alone does not check for `LICENSE`. On 2026-11-02 a
+      scratch workspace with `license = "MIT"` and no `LICENSE` file passed
+      `cargo publish --dry-run --workspace` with Cargo 1.95.0.
+    - D is blocked, because it adds a gate, and only the user approves a
+      gate. Effort: Small.
 - **Left out:** Set `license-file` to the root file. Cargo warns when a
   manifest sets both `license` and `license-file`, and without `license`,
   crates.io shows no SPDX name. Options A and B are better on every point.
-- **Wider fix:** None. A gate step that fails when a package has no `LICENSE`
-  would catch a new library crate. It adds a gate, and only the user can add
-  a gate.
+- **Wider fix:** D. It catches each library package without `LICENSE` in the
+  gate. It is blocked, because it adds a gate.
 - **Previous examples:** None found.
 - **Related:** `plans/follow-ups/publish-crates-io.md`, work that waits for
   this item. The first crates.io release needs this fix first.
 - **Recommendation:** A. One file holds the text, and every package carries
-  it.
+  it. D gives the best protection, but it waits for the user, because only
+  the user approves a gate.
 - **Action:** fix after merge, apply A, because no package is published yet,
   and the fix adds the existing license text without a change of license.

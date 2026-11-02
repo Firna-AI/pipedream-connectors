@@ -133,8 +133,13 @@
   the only other call outside the OpenAPI document, and it has no end date.
 - **Previous examples:** None found.
 - **Related:**
-  - `plans/follow-ups/mcp-and-legacy-rest-plans.md`: the same cause. The
-    Workflows shutdown also counts against a legacy workflow REST API client.
+  - `plans/follow-ups/mcp-client-plan.md`: the same cause. That item records
+    a design call of 2026-11-02 not to plan a legacy workflow REST API
+    client. The Workflows shutdown is one of its reasons.
+  - `plans/follow-ups/openapi-fixture-refresh.md`: the same cause. The
+    shutdown can make Pipedream drop the deployed-trigger workflow routes
+    from the OpenAPI document. This item leaves those routes to that refresh,
+    as **Left out** says. The live document of 2026-11-02 still has them.
   - `plans/follow-ups/publish-crates-io.md`: work that waits for the answer.
     Options B and C act in or before the first release, so answer this item
     before that release.
