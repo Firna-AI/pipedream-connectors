@@ -1509,9 +1509,12 @@ outside the review scope, and the post-merge tasks.
 
 Depends on: Milestone 16.
 
-- [ ] Write one follow-up item for each open item, each blocked wider fix,
+- [x] Write one follow-up item for each open item, each blocked wider fix,
       each problem outside the review scope, and each post-merge task.
-- [ ] Point each plan entry to its follow-up item, validate the Markdown,
+  - The work found three new problems, each with its own follow-up item:
+    `emitter-date-unit.md`, `workflows-shutdown.md`, and
+    `deployed-trigger-email-prefix.md`.
+- [x] Point each plan entry to its follow-up item, validate the Markdown,
       commit, and push.
 - [ ] Review the diff since `ad1158b` with the `implementation-review` skill
       after the push. Apply the fix rule: fix the `fix now` findings, record
