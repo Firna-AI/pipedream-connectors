@@ -56,8 +56,12 @@
   skill says that doc prose never gets a test.
 - **Previous examples:** On 2026-10-23, commit `be03dc0` corrected the
   sentence of the same README that overstated the coverage test.
-- **Related:** `plans/follow-ups/emitter-date-unit.md`, same code. Option F
-  there adds a live test, and the Key Code list must then name it too.
+- **Related:**
+  - `plans/follow-ups/emitter-date-unit.md`, same code. Option F there adds a
+    live test, and the Key Code list must then name it too.
+  - `plans/follow-ups/client-readme-dot-identifier-policy.md`, same code. That
+    item fixes a stale sentence on dot identifiers in the same README. One
+    branch can fix both items.
 - **Recommendation:** A. It makes the Key Code list match both live test files
   with a two-line change.
 - **Action:** fix after merge, apply A, because the README list was outside

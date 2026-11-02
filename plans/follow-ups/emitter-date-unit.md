@@ -163,6 +163,13 @@
     this fix.
   - `plans/follow-ups/client-readme-live-managed-auth.md`, same code. A new
     live test from F needs a line in the client README Key Code list.
+  - `plans/follow-ups/deployed-trigger-email-prefix.md`, same code. That item
+    is about the IDs of email triggers, which start with `ei_`. Its option E
+    adds a typed email interface with `created_at` and `updated_at` to the
+    emitter model in `emitters.rs`. So E needs the date unit that this item
+    picks, and its live run can share the live run of B or F here. That item
+    also records that no emitter example on the Connect page has a `type`
+    field. The live tests of F check that field.
 - **Recommendation:** F. It applies the unit that every published example
   shows, without waiting for credentials, and the first live run confirms it.
   The first check recommended B, but B keeps the likely wrong unit until
