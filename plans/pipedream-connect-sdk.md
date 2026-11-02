@@ -1516,9 +1516,19 @@ Depends on: Milestone 16.
     `deployed-trigger-email-prefix.md`.
 - [x] Point each plan entry to its follow-up item, validate the Markdown,
       commit, and push.
-- [ ] Review the diff since `ad1158b` with the `implementation-review` skill
+- [x] Review the diff since `ad1158b` with the `implementation-review` skill
       after the push. Apply the fix rule: fix the `fix now` findings, record
       follow-up items for the rest, re-review once, and report.
+      Evidence: `.context/reviews/calummoore/pipedream-rust-sdk-plan/`.
+  - Review: findings 81 to 84, fixed in `a0b0cc4`. Re-review: finding 85,
+    fixed in `78088d6`. Its wider fix waits in
+    `plans/follow-ups/xtask-publish-command.md`.
+  - Design call (2026-11-02, agent): the SDK does not plan a legacy REST
+    client. Pipedream Workflows end on 2027-03-31, the REST reference page
+    returned HTTP 404, and no known consumer needs the client.
+  - Design call (2026-11-02, agent): raw `ApiPath` dot segments stay skipped,
+    as a test pins. No follow-up item, because the behaviour is safe, and a
+    rejection would add a validation.
 - [ ] Delete the plan, as the `plans` skill says.
 - [ ] Open the pull request when every other milestone TODO is ticked, or when
       the user asks for it.
