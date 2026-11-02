@@ -1,7 +1,11 @@
 # Connect webhook protocol
 
-This document defines signature verification and webhook payloads for Connect
-connection events and deployed trigger deliveries.
+This document defines signature verification for deployed trigger deliveries.
+It also defines the webhook payloads of trigger deliveries and Connect
+connection events.
+
+Pipedream documents no signature for connection webhooks. The
+[Connection events](#connection-events) section defines how a host trusts them.
 
 ## Signature header
 
@@ -134,6 +138,29 @@ The client MUST preserve unknown fields in either connection payload.
 
 The connection event session ID MAY be a large numeric value and MUST remain
 lossless during decoding.
+
+A host MUST treat a connection webhook as unauthenticated.
+
+Before a host acts on a `CONNECTION_SUCCESS` event, it MUST retrieve the
+event's account from the Connect API with its project credentials.
+
+The host MUST confirm that the retrieved account belongs to the external user
+that the host expects.
+
+See [Account creation and deletion](resources/accounts.md#account-creation-and-deletion)
+for the ownership check of an account retrieval.
+
+When the host relies on the app of the account, it MUST confirm that the
+retrieved account is for the expected app.
+
+**Decision.** A host confirms the account of a connection event through the
+Connect API. A forged account ID then fails, because the account is not found
+or belongs to another external user. Requiring a signature was rejected
+because Pipedream documents no signature or signing key for connection
+webhooks. Trusting the payload was rejected because anyone who knows the
+webhook URI of the Connect token can send an event. A matching Connect token
+proves nothing, because the token also reaches the browser of the end user.
+The confirmation stays correct if Pipedream adds a signature later.
 
 ## Trigger deliveries
 

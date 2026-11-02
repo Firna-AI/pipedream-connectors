@@ -94,9 +94,14 @@ The resource operation returns a typed model that preserves fields, a proxy
 response that preserves bytes, an accepted asynchronous result, or a public
 client error.
 
-A webhook host receives the raw HTTP body and signature header. It selects the
-trigger or project environment key, verifies the raw bytes, and then decodes a
-connection or trigger payload.
+A webhook host receives the raw HTTP body. For a trigger delivery, it selects
+the trigger or project environment key, verifies the raw bytes against the
+signature header, and then decodes the delivery.
+
+A connection webhook carries no documented signature. The host decodes it, and
+then confirms its account through the client before it trusts the event. The
+webhooks library makes no Connect API calls, so a host that receives
+connection webhooks also needs the client.
 
 ## Host responsibilities
 
