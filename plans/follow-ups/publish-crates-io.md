@@ -79,9 +79,9 @@
   2. In `Cargo.toml:28`, replace the git source of `internal-error` with the
      crates.io version. Run `cargo update -p internal-error`.
   3. Run `cargo xtask check`.
-  4. Add the license text to each library package. For example, put a copy
-     of the root `LICENSE` in each crate folder. Check the result with
-     `cargo package --list -p <crate>`.
+  4. Add the license text to each library package.
+     `plans/follow-ups/library-packages-license-file.md` holds the fix and
+     its options. Check the result with `cargo package --list -p <crate>`.
   5. Do the task in `plans/follow-ups/rustdoc-absolute-readme-links.md` first.
   6. Check that the three crate names are still free on crates.io.
   7. Run `cargo publish --dry-run -p <crate>` for each library crate.
@@ -100,6 +100,13 @@
   of the user for the release.
 - **Done when:** crates.io lists the three library crates. docs.rs shows the
   docs of each crate. `Cargo.toml` takes `internal-error` from crates.io.
-- **Related:** `plans/follow-ups/rustdoc-absolute-readme-links.md`, an order
-  of work. Do that task before the first release, because docs.rs builds the
-  docs of each version once, from its README.
+- **Related:**
+  - `plans/follow-ups/rustdoc-absolute-readme-links.md`: an order of work. Do
+    that task before the first release, because docs.rs builds the docs of
+    each version once, from its README.
+  - `plans/follow-ups/library-packages-license-file.md`: the same code. It
+    records the missing `LICENSE` file in each package and holds the fix for
+    step 4 of the task. Apply it before the first release.
+  - `plans/follow-ups/workflows-shutdown.md`: work that waits for an answer.
+    Two of its options act in or before the first release, so get the answer
+    of the user before the release.
