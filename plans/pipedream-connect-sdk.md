@@ -1528,6 +1528,6 @@ Depends on: Milestone 16.
 On 2026-11-02 the post-merge tasks moved to follow-up items:
 `plans/follow-ups/firna-adoption-plan.md`,
 `plans/follow-ups/publish-crates-io.md`,
-`plans/follow-ups/mcp-and-legacy-rest-plans.md`,
+`plans/follow-ups/mcp-client-plan.md`,
 `plans/follow-ups/rustdoc-absolute-readme-links.md`, and
 `plans/follow-ups/openapi-fixture-refresh.md`.
