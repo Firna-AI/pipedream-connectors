@@ -997,7 +997,9 @@ no resource yet.
 - [x] A local-socket integration test for the reqwest transport: exact
       headers, announced and streamed oversize bodies, and a redirect that
       is not followed. Write the crate README.
-- [ ] Resolve literal dot path parameters after the user decides.
+- [x] Resolve literal dot path parameters after the user decides.
+  - Done in Milestone 13: the user chose on 2026-10-26 to reject `.` and `..`
+    identifiers.
 - [x] Run the gate, commit, and hand off to the orchestrator. The assigned
       worktree branch must not push. The orchestrator merges and pushes it.
 
@@ -1269,18 +1271,21 @@ Summary: the final checks and the review loop.
   - Finding 18: No gate builds the client without default features. Severity
     Low, effort Small. Recommended: A, add no-default steps.
     Open (2026-10-26): explanation requested.
+    Deferred by the user (2026-11-02) to `plans/follow-ups/gate-no-default-features.md`.
   - Finding 21: Component retrieval keeps a hand-written query encoder. Severity
     Low, effort Small. Recommended: A, use `with_query`.
     Outcome (2026-10-26): A.
   - Finding 22: Protocol sentences promise optional inputs and cursors. Severity
     Low, effort Small. Recommended: A, correct the three sentences.
     Open (2026-10-26): question asked about OpenAPI generation.
+    Deferred by the user (2026-11-02) to `plans/follow-ups/protocol-promises-missing-inputs.md`.
   - Finding 23: Serde path skips connection event checks. Severity Low, effort
     Small. Recommended: B, one constructor for both paths.
     Outcome (2026-10-26): B.
   - Finding 25: Serde round trip changes delivery identity. Severity Low, effort
     Small. Recommended: A, document it.
     Open (2026-10-26): explanation of trade-offs requested.
+    Deferred by the user (2026-11-02) to `plans/follow-ups/delivery-identity-serde-round-trip.md`.
   - Finding 26: Webhook status mapping blames the sender for host faults.
     Severity Low, effort Small. Recommended: A, map host faults to 500.
     Outcome (2026-10-26): C.
@@ -1361,14 +1366,19 @@ Summary: the final checks and the review loop.
     Outcome (2026-10-26): A, add the check (decision 76).
   - Outside the scope: `AGENTS.md` intro paragraph differs from the template.
     Separate branch.
+    Moved (2026-11-02) to `plans/follow-ups/agents-md-intro-template.md`.
   - Outside the scope: `docs/protocol/webhooks.md` says the client preserves
     unknown fields; the decoder does. Separate branch.
+    Moved (2026-11-02) to `plans/follow-ups/webhooks-protocol-client-preserves-fields.md`.
   - Outside the scope: the client README never names
     `tests/live_managed_auth.rs`. Separate branch.
+    Moved (2026-11-02) to `plans/follow-ups/client-readme-live-managed-auth.md`.
   - Outside the scope: `accounts_tests.rs` and `tokens_tests.rs` use inline
     `pipedream_connect_types::` paths. Separate branch.
+    Moved (2026-11-02) to `plans/follow-ups/resource-tests-inline-paths.md`.
   - Outside the scope: the library packages do not include the license file.
     Separate branch.
+    Moved (2026-11-02) to `plans/follow-ups/library-packages-license-file.md`.
   - The full report is `.context/pipedream-connect-sdk/final-review/report.md`.
 
 ## Milestone 13: Apply the final review decisions
@@ -1440,23 +1450,31 @@ Summary: the final checks and one review loop for Milestones 13 and 14.
     Small. Recommended: A, parse date strings with chrono's
     `DateTime<FixedOffset>` parser.
     Open (2026-10-26): needs a user decision.
+    Deferred by the user (2026-11-02) to `plans/follow-ups/date-decode-rejections.md`.
   - Follow-up: add `#![warn(unreachable_pub)]` to the xtask binary and narrow
     each item that it flags. Effort Small. Covers re-review finding 4.
     Previous examples: none found.
+    Moved (2026-11-02) to `plans/follow-ups/xtask-unreachable-pub-lint.md`.
   - Outside the scope: `xtask/src/layout.rs` and `xtask/src/file_length.rs`: a
     read error names the workspace root, not the directory that failed.
     Separate branch.
+    Moved (2026-11-02) to `plans/follow-ups/xtask-read-error-path.md`.
   - Outside the scope: `xtask/src/command.rs`: `CommandSpec`, `CommandOutcome`,
     and `CommandRunner` are `pub` in a binary crate. Separate branch.
+    Moved (2026-11-02) to `plans/follow-ups/xtask-command-types-visibility.md`.
   - Outside the scope: `crates/pipedream-connect-types/src/triggers/emitters.rs`:
     `TimerInterface.schedule_changed_at` reads integers as epoch milliseconds,
     but the OpenAPI document gives it no unit. Separate branch.
+    Moved (2026-11-02) to `plans/follow-ups/emitter-date-unit.md`.
   - Outside the scope: `crates/pipedream-connect/src/failure.rs`: the
     `provider_message` doc comment describes history. Separate branch.
+    Moved (2026-11-02) to `plans/follow-ups/failure-provider-message-doc-history.md`.
   - Outside the scope: `xtask/src/error.rs`: a failed command prints its exit
     code as `Some(101)`. Separate branch.
+    Moved (2026-11-02) to `plans/follow-ups/xtask-exit-code-format.md`.
   - Outside the scope: `crates/pipedream-cli`: a request to a closed port
     reports that the change "may have run". Separate branch.
+    Moved (2026-11-02) to `plans/follow-ups/cli-closed-port-may-have-run.md`.
 
 ## Milestone 16: Connection webhook trust rule
 
@@ -1504,13 +1522,9 @@ Depends on: Milestone 16.
 
 ## Post-merge follow-up (non-blocking)
 
-- [ ] Open a plan in `futex-ai/firna` that makes `fna-connectors-pipedream`
-      depend on the SDK and keeps its `ConnectorProvider` mapping.
-- [ ] Publish the library crates to crates.io when `internal-error` is
-      published.
-- [ ] Consider an MCP server client and the legacy workflow REST API as
-      separate plans.
-- [ ] Use absolute repository URLs in the Related Docs lists of the library
-      READMEs, so that rustdoc links work (finding 63, outcome A).
-- [ ] Refresh the vendored OpenAPI fixture in a separate change, implement
-      any new operation, and review the diff (finding 53, outcome A).
+On 2026-11-02 the post-merge tasks moved to follow-up items:
+`plans/follow-ups/firna-adoption-plan.md`,
+`plans/follow-ups/publish-crates-io.md`,
+`plans/follow-ups/mcp-and-legacy-rest-plans.md`,
+`plans/follow-ups/rustdoc-absolute-readme-links.md`, and
+`plans/follow-ups/openapi-fixture-refresh.md`.

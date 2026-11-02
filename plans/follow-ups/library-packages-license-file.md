@@ -64,6 +64,8 @@
   would catch a new library crate. It adds a gate, and only the user can add
   a gate.
 - **Previous examples:** None found.
+- **Related:** `plans/follow-ups/publish-crates-io.md`, work that waits for
+  this item. The first crates.io release needs this fix first.
 - **Recommendation:** A. One file holds the text, and every package carries
   it.
 - **Action:** fix after merge, apply A, because no package is published yet,
