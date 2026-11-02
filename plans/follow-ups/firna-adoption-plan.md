@@ -110,3 +110,7 @@
   to the new Firna plan.
 - **Done when:** A plan in `futex-ai/firna` covers each point of the task.
   The plan is committed on the Firna branch that it targets.
+- **Related:** `plans/follow-ups/emitter-date-unit.md`, same cause. The Firna
+  mapping reads the emitter dates with `DateTime::from_timestamp_millis`. The
+  Firna plan must take each date from `Timestamp::as_datetime`, or Firna keeps
+  wrong dates after that fix.

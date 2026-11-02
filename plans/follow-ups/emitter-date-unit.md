@@ -1,12 +1,13 @@
 # Emitter dates may decode in the wrong unit
 
 - **Severity:** High. **Likelihood:** Common. **Effort:** Medium.
-  **Confidence:** Medium. **Harder later:** No.
-- **Kind:** Outside the scope.
+  **Confidence:** High. **Harder later:** Yes.
+- **Kind:** Needs decision.
 - **Added:** 2026-11-02, from branch `calummoore/pipedream-rust-sdk-plan`. The
   re-review of the decisions-round fixes listed `schedule_changed_at` outside
   its scope on 2026-10-26. The check for this item found the public example
-  values on 2026-11-02.
+  values on 2026-11-02. A second check on 2026-11-02 found more Pipedream
+  examples and raised the confidence.
 - **Location:** `crates/pipedream-connect-types/src/triggers/emitters.rs:29-32`,
   `crates/pipedream-connect-types/src/triggers/emitters.rs:71-74`,
   `crates/pipedream-connect-types/src/triggers/emitters.rs:96-101`,
@@ -14,8 +15,8 @@
   `docs/protocol/connect-resources.md:47-51`,
   `crates/pipedream-connect-types/README.md:12-16`,
   `crates/pipedream-connect-types/tests/conformance/timestamp_tests.rs:80-121`.
-- **Reason:** Only a live Pipedream response or an answer from Pipedream can
-  settle the unit, and the review had neither.
+- **Reason:** Each fix changes the date rule of the protocol doc, so the item
+  waits for a user decision.
 
 - **Source:** Review.
 - **Category:** product bug.
@@ -60,10 +61,25 @@
     `schedule-custom-interval` and the `configured_props`
     `{"cron": {"intervalSeconds": 900}}`. It deploys the HTTP interface with
     the trigger ID `http-new-requests` and no props.
-- **Problem:** No source confirms the unit of the seven emitter dates. The
-  OpenAPI copy says milliseconds for six of them and nothing for
-  `schedule_changed_at`. The public example responses show 10-digit values,
-  which fit epoch seconds.
+  - Older Pipedream examples agree. The Connect API reference of December 2024
+    shows 1734028283, 1733512889, and 1733198039. The classic REST API docs of
+    February 2024 show 1707418403 and 1707418408. The REST API docs of 2020
+    show 1587679599. All have 10 digits.
+  - Read as epoch seconds, each example value falls hours to days before the
+    commit that added it to the Pipedream docs repository.
+  - The same pages use 13 digits for millisecond fields, such as the trigger
+    event `ts` 1737155977519 and the field `indexed_at_ms`.
+  - The text "epoch milliseconds" first appears in July 2025, in the OpenAPI
+    document and the SDKs that Fern generates from it. It has no example
+    value. The live OpenAPI document of 2026-11-02 has the same text.
+  - No published source shows that Pipedream changed the unit after April
+    2025. Only a live response can prove the unit.
+  - Firna reads these dates with `DateTime::from_timestamp_millis`, in
+    `crates/fna-connectors-pipedream/src/mapping/triggers.rs` of
+    `futex-ai/firna`.
+- **Problem:** Every published Pipedream example since 2020 shows these dates
+  in epoch seconds. The SDK follows the OpenAPI text and reads them as epoch
+  milliseconds, so it most likely decodes all seven dates wrong.
 - **Impact if no action:** If Pipedream sends epoch seconds, each emitter date
   decodes to a day in January 1970, without an error. Re-encoding keeps the
   original integer, so only callers that read the dates get wrong values.
@@ -94,20 +110,65 @@
   - **E.** Switch the seven fields to epoch seconds now, from the example
     responses alone. This contradicts the OpenAPI copy for six fields.
     Effort: Small.
-- **Left out:** Type the seven fields as plain JSON numbers. It fails the goal,
-  because the SDK then gives no instant.
-- **Wider fix:** None. The conformance test already checks each integer date
-  against its OpenAPI unit, but it cannot find an OpenAPI description that is
-  wrong.
+  - **F.** Do E, and plan the confirmation:
+    - Give the published examples as the reason in the protocol decision and
+      in the conformance test exceptions. Add `schedule_changed_at` to the
+      conformance test.
+    - Add a live test that deploys `http-new-requests` and
+      `schedule-custom-interval`, checks that each date is within a day of the
+      current time, and deletes both. Add the same check to the Google
+      Calendar lifecycle test. The live tests need Pipedream credentials.
+      They also confirm that each emitter has a `type` field, because the SDK
+      decodes an emitter without one as `Other`, with no dates.
+    - Ask Pipedream to correct the six descriptions and to state the unit of
+      `schedule_changed_at`, as C does.
+    - Risk: if Pipedream sends milliseconds, the dates show a year after
+      55,000 until the first live run fails. Effort: Medium.
+  - **G.** Let the shared date decoder pick the unit by the size of the value,
+    for every integer date field. A value below 100,000,000,000 is epoch
+    seconds, and a larger value is epoch milliseconds. Remove the decoders
+    that set seconds for single fields. State one rule in the protocol doc and
+    the crate READMEs. Test values such as `1_000_000` in the deployed trigger
+    lifecycle tests must change. It gives the right date from March 1973 to
+    the year 5138 in either unit, and it stays right if Pipedream changes a
+    unit. It adds decode behaviour that no requirement covers.
+    Effort: Medium.
+- **Left out:**
+  - Type the seven fields as plain JSON numbers. It fails the goal, because
+    the SDK then gives no instant.
+  - A test that checks the published example values. It gives no date by
+    itself, and G prevents the class with a structural fix.
+  - A note that tells callers to re-read the value as seconds. Each caller
+    that misses the note still gets a date in 1970.
+  - A fix in the client crate or a local edit of the OpenAPI copy. The types
+    crate owns decoding, and a refresh overwrites the OpenAPI copy.
+- **Wider fix:** G. A size rule in the shared decoder prevents this class of
+  defect for every integer date, also for fields that a later OpenAPI refresh
+  adds.
 - **Previous examples:** On 2026-10-26, a review found that eight usage record
   and project webhook dates used epoch seconds, but the SDK read them as
   milliseconds. Commit `62024a1` added `deserialize_timestamp_seconds` in
-  `crates/pipedream-connect-types/src/shared.rs` for them.
-- **Recommendation:** B. A live response shows which source is right, and the
-  fix then follows the real wire. C adds lasting protection, because the
-  conformance test can then check every emitter date against a stated unit.
-- **Action:** ask the user, because the live check needs Pipedream
-  credentials, and a switch to seconds changes the protocol date rule.
+  `crates/pipedream-connect-types/src/shared.rs` for them. The re-review of
+  that fix offered a size rule as an option, and the fix kept the OpenAPI
+  units instead.
+- **Related:**
+  - `plans/follow-ups/date-decode-rejections.md`, same code. Both items change
+    the shared date decoder and the date rule of the protocol doc. A new size
+    rule must use the out-of-range rule that the other item picks.
+  - `plans/follow-ups/openapi-fixture-refresh.md`, same code and a shared
+    wider fix. The refresh adds `WebhookDeliveryState.since` in epoch
+    seconds. Without G, that field needs its own seconds decoder.
+  - `plans/follow-ups/firna-adoption-plan.md`, same cause. Firna must take
+    these dates from `Timestamp::as_datetime`, or it keeps wrong dates after
+    this fix.
+  - `plans/follow-ups/client-readme-live-managed-auth.md`, same code. A new
+    live test from F needs a line in the client README Key Code list.
+- **Recommendation:** F. It applies the unit that every published example
+  shows, without waiting for credentials, and the first live run confirms it.
+  The first check recommended B, but B keeps the likely wrong unit until
+  credentials exist. G best protects the codebase.
+- **Action:** ask the user, because F changes the date rule of the protocol
+  doc, and no recorded decision covers the change.
 
 The example values come from
 <https://pipedream.com/docs/connect/components/triggers>, read on 2026-11-02.

@@ -129,7 +129,10 @@
   4. Implement each new operation. Give it a client method, a protocol table
      row, a golden wire row, a coverage call, and a unit test.
   5. Add each new documented field to its model. Make each nullable field an
-     `Option`.
+     `Option`. Give `WebhookDeliveryState.since` the seconds decoder
+     `deserialize_timestamp_seconds`, unless the shared date decoder picks the
+     unit by size by then. The default decoder reads an integer as epoch
+     milliseconds.
   6. Wrap each new credential field in a secret type, such as `SecretString`.
   7. Ask the user before the SDK adds JWT client authentication or another
      new requirement. Record a follow-up item when the user defers it.
@@ -154,3 +157,7 @@
   - The user answered the question on JWT client authentication, or a
     follow-up item records it.
   - `cargo xtask check` passes.
+- **Related:** `plans/follow-ups/emitter-date-unit.md`, same code. The live
+  document still says "epoch milliseconds" for the emitter dates, so this
+  refresh does not settle that item. A size rule from that item also removes
+  the need for the seconds decoder of step 5.

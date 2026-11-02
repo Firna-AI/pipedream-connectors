@@ -74,6 +74,9 @@
   chose one shared date type for every date field, over a fix for the trigger
   context date only. Commit `c9b6a87` applied it. Each option here changes that
   shared type. The decision chose the shared type, not its strict string rule.
+  Also `plans/follow-ups/emitter-date-unit.md`, same code. That item changes
+  the same decoder and the same protocol date rule. A size rule there must use
+  the out-of-range rule that this item picks.
 - **Recommendation:** A. It removes the string rejections that nobody asked
   for with one change. B best protects the codebase, but it changes the
   public accessor.
