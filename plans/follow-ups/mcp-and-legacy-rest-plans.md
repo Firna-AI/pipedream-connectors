@@ -31,15 +31,16 @@
   - The Pipedream OpenAPI document has no route of the legacy workflow REST
     API. Its only routes outside Connect are the four legacy routes above.
   - The Pipedream docs said this on 2026-11-02:
-    - Pipedream Workflows and String shut down on 2027-03-31. Workflows get
-      no new signups and no new features.
+    - Pipedream Workflows and String shut down on 2027-03-31. String is the
+      Pipedream tool that builds workflows with AI.
+    - Workflows get no new signups and no new features.
     - Pipedream deletes all Workflows data by 2027-04-30.
     - Connect, the MCP servers, and the API proxy do not change.
     - The docs index at `https://pipedream.com/docs/llms.txt` listed no
       reference for the legacy workflow REST API.
     - The page `https://pipedream.com/docs/rest-api` returned HTTP 404.
   - The shutdown also ends the targets of the SDK workflow invocation call.
-    That is a separate problem.
+    `plans/follow-ups/workflows-shutdown.md` holds that separate problem.
   - The Pipedream MCP server had these facts on 2026-11-02:
     - Its URL is `https://remote.mcp.pipedream.net/v3`. It supports the SSE
       and streamable HTTP transports.
@@ -72,3 +73,6 @@
 - **Needs:** The answer of the user to each question. No credentials.
 - **Done when:** The user answered both questions. Each part that the user
   accepted has its own committed plan under `plans/`.
+- **Related:** `plans/follow-ups/workflows-shutdown.md`: the same cause. The
+  Workflows shutdown on 2027-03-31 ends the SDK workflow invocation call, and
+  it counts against a legacy workflow REST API client.
