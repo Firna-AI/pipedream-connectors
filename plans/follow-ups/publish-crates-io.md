@@ -150,3 +150,7 @@
   - `plans/follow-ups/workflows-shutdown.md`: work that waits for an answer.
     Two of its options act in or before the first release, so get the answer
     of the user before the release.
+  - `plans/follow-ups/xtask-publish-command.md`: the same code. It adds
+    `cargo xtask publish`, one command for the upload of step 9 and for each
+    resume. When it lands before the release, steps 7 and 9 name that
+    command.
