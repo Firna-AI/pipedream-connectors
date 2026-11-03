@@ -55,6 +55,9 @@ flag or variable that set it.
 
 The CLI reports every missing required setting in one message.
 
+The CLI requests the `connect:*` OAuth scope. The `usage` route rejects tokens
+with the top-level `*` scope.
+
 ### Commands
 
 <!-- markdownlint-disable MD013 -->
@@ -170,6 +173,9 @@ as the app API and its status.
 
 `triggers list` takes `--external-user-id <ID>`, which is required,
 `--emitter-type <email|http|source|timer>`, and the page flags.
+Without `--emitter-type`, `triggers list` lists only deployed components.
+Pipedream documents `source` as the default emitter type.
+
 `triggers get`, `triggers delete`, and `triggers events` take the trigger ID
 and `--external-user-id <ID>`. A trigger ID starts with `dc_`, `hi_`, or
 `ti_` and then has 1 to 247 ASCII letters or digits. `triggers delete` takes

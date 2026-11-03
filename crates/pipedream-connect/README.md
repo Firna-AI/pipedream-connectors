@@ -78,6 +78,9 @@ lifetime. A 401 invalidates the cached bearer without replaying the request.
 A static bearer has no refresh cache. Its rotation belongs to the host.
 Replace the provider or client when a static bearer changes.
 
+The `usage().list(...)` operation needs a token with the `connect:*` OAuth
+scope. Hosts set it with the client builder's `.scope("connect:*")` method.
+
 Diagnostics redact credentials, HTTP bodies, headers, and query values.
 Provider error messages remain available in typed error fields. Error
 formatting does not print those messages. Success JSON decode errors retain
