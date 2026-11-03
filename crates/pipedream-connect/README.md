@@ -216,19 +216,32 @@ rate-limit tokens and workflow invocation operations have no OpenAPI
 operation, so this test does not cover them. The OAuth token row uses the
 client-credentials provider so the test also covers the token request.
 
-Run the registry and trigger smoke tests with the explicit opt-in:
+Run the registry, trigger lifecycle, and emitter date smoke tests with the
+explicit opt-in:
 
 ```sh
 PIPEDREAM_LIVE_TESTS=1 cargo test -p pipedream-connect \
   --test live_pipedream -- --nocapture
 ```
 
-The registry smoke reads Google Calendar and lists its actions and triggers.
+All three tests require `PIPEDREAM_CLIENT_ID`, `PIPEDREAM_CLIENT_SECRET`, and
+`PIPEDREAM_PROJECT_ID`. The registry smoke reads Google Calendar and lists
+its actions and triggers.
 The trigger lifecycle smoke deploys, lists, and deletes one trigger. It always
 cleans up a trigger created by the test. It requires
-`PIPEDREAM_EXTERNAL_USER_ID` and `PIPEDREAM_CONNECTED_ACCOUNT_ID`. Both tests
-print missing variable names and skip when credentials or the opt-in are
-absent.
+`PIPEDREAM_EXTERNAL_USER_ID` and `PIPEDREAM_CONNECTED_ACCOUNT_ID`.
+
+The `live_pipedream_emitter_dates_are_recent` test deploys HTTP and timer
+emitters. It checks that deployment and list responses contain dates within
+one day of the current time. It uses only the fixed external user
+`pd-sdk-live-emitter-dates`. Reserve this user for this test. After the
+checks, including failed checks, cleanup deletes the recorded emitter IDs,
+then deletes the fixed user. User deletion also removes deployments left
+by an earlier failed or stopped run. Cleanup accepts a missing user and
+reports each other cleanup error.
+
+All three tests print missing variable names and skip when credentials or
+the opt-in are absent.
 
 Run the managed-auth and proxy smoke test with the explicit opt-in:
 
@@ -309,7 +322,10 @@ let _pages = paginator.paginate(PageRequest::default(), std::num::NonZeroUsize::
 - `src/pagination.rs` defines bounded page traversal and its stop reasons.
 - `src/error.rs` defines the public error contract.
 - `tests/http_transport.rs` exercises reqwest through local sockets.
-- `tests/live_pipedream.rs` provides the credential-gated registry smoke test.
+- `tests/live_pipedream.rs` provides credential-gated registry, trigger
+  lifecycle, and HTTP and timer emitter date smoke tests.
+- `tests/_support/live_emitter_dates.rs` provides live client setup, emitter
+  date checks, and cleanup for the fixed `pd-sdk-live-emitter-dates` user.
 
 ### Related Docs
 

@@ -7,6 +7,7 @@ use std::{
 
 use pipedream_connect::PipedreamClient;
 use pipedream_connect::config::ClientCredentials;
+use pipedream_connect::error::Error;
 use pipedream_connect_types::{
     DeleteTriggerRequest, DeployedTriggerId, Emitter, Environment, ExternalUserId,
     ListDeployedTriggersRequest, PageRequest, ProjectId,
@@ -95,8 +96,24 @@ pub(super) fn check_emitter_dates(emitter: &Emitter) -> Result<(), String> {
     Ok(())
 }
 
+/// Deletes recorded emitters, then the test user and any unrecorded deployments.
+pub(super) async fn cleanup_emitter_dates(
+    client: &PipedreamClient,
+    external_user_id: &ExternalUserId,
+    trigger_ids: &[DeployedTriggerId],
+) -> Vec<String> {
+    let mut errors = delete_created_triggers(client, external_user_id, trigger_ids).await;
+    match client.users().delete(external_user_id.clone()).await {
+        Ok(()) | Err(Error::NotFound { .. }) => {}
+        Err(error) => errors.push(format!(
+            "delete external user {external_user_id}: {error:?}"
+        )),
+    }
+    errors
+}
+
 /// Attempts every deletion before reporting cleanup errors.
-pub(super) async fn delete_created_triggers(
+async fn delete_created_triggers(
     client: &PipedreamClient,
     external_user_id: &ExternalUserId,
     trigger_ids: &[DeployedTriggerId],

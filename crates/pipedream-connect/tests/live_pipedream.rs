@@ -18,7 +18,7 @@ use pipedream_connect_types::{
 mod live_emitter_dates;
 
 use live_emitter_dates::{
-    check_emitter_dates, cleanup_created_triggers, client_from_env, delete_created_triggers,
+    check_emitter_dates, cleanup_created_triggers, cleanup_emitter_dates, client_from_env,
     emitter_id,
 };
 
@@ -231,13 +231,8 @@ async fn live_pipedream_emitter_dates_are_recent() {
     let Some(client) = client_from_env() else {
         return;
     };
-    let external_user_id = ExternalUserId::new(
-        env::var("PIPEDREAM_EXTERNAL_USER_ID")
-            .ok()
-            .filter(|value| !value.trim().is_empty())
-            .unwrap_or_else(|| "pd-sdk-live-emitter-dates".to_owned()),
-    )
-    .expect("valid external user ID");
+    let external_user_id =
+        ExternalUserId::new("pd-sdk-live-emitter-dates").expect("valid external user ID");
     let mut trigger_ids = Vec::new();
     let checks = async {
         let deployments = [
@@ -288,7 +283,7 @@ async fn live_pipedream_emitter_dates_are_recent() {
         Ok::<(), String>(())
     }
     .await;
-    let cleanup = delete_created_triggers(&client, &external_user_id, &trigger_ids).await;
+    let cleanup = cleanup_emitter_dates(&client, &external_user_id, &trigger_ids).await;
     assert!(
         cleanup.is_empty(),
         "cleanup errors: {cleanup:?}; date checks: {checks:?}"
