@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::{ComponentKey, ComponentStash, ComponentType, ConfigurableProp, UnknownFields};
+use crate::{ComponentKey, ComponentStash, ComponentTypeValue, ConfigurableProp, UnknownFields};
 
 /// Component behavior annotations.
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
@@ -44,7 +44,7 @@ pub struct Component {
     pub description: Option<String>,
     /// Component kind.
     #[serde(default)]
-    pub component_type: Option<ComponentType>,
+    pub component_type: Option<ComponentTypeValue>,
     /// File Stash requirement.
     #[serde(default)]
     pub stash: Option<ComponentStash>,

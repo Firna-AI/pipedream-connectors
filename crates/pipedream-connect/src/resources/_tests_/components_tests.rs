@@ -3,8 +3,8 @@
 use std::error::Error as StdError;
 
 use pipedream_connect_types::{
-    AppSlug, ComponentKey, ComponentStash, ComponentType, Cursor, GetComponentRequest,
-    ListComponentsRequest, PageRequest, PropKind, RegistryKind,
+    AppSlug, ComponentKey, ComponentStash, ComponentType, ComponentTypeValue, Cursor,
+    GetComponentRequest, ListComponentsRequest, PageRequest, PropKind, RegistryKind,
 };
 use serde_json::json;
 
@@ -38,7 +38,10 @@ async fn list_encodes_every_filter_and_keeps_unknown_component_and_prop_kinds() 
     assert_eq!(result.data.len(), 1);
     assert_eq!(result.page_info.count, Some(1));
     assert_eq!(
-        result.data[0].component_type,
+        result.data[0]
+            .component_type
+            .as_ref()
+            .map(ComponentTypeValue::kind),
         Some(ComponentType::Other("future_component".into()))
     );
     assert_eq!(
@@ -94,9 +97,12 @@ async fn get_encodes_versions_checks_keys_and_keeps_the_data_envelope() {
 
 #[tokio::test]
 async fn default_and_future_enum_filters_use_the_model_wire_values() {
+    let mut trigger = component();
+    trigger["component_type"] = json!("source");
     let harness = Harness::new(vec![
         response(200, page(component())),
         response(200, page(component())),
+        response(200, page(trigger)),
     ]);
     harness
         .client
@@ -122,7 +128,31 @@ async fn default_and_future_enum_filters_use_the_model_wire_values() {
         harness.request(2),
         "https://api.pipedream.com/v1/connect/proj_Test123/components?component_type=future_kind&limit=100&registry=future%2Bregistry",
     );
-    harness.assert_requests(3);
+    let result = harness
+        .client
+        .components()
+        .list(ListComponentsRequest {
+            component_type: Some(ComponentType::Trigger),
+            ..ListComponentsRequest::default()
+        })
+        .await
+        .unwrap();
+    assert_get(
+        harness.request(3),
+        "https://api.pipedream.com/v1/connect/proj_Test123/components?component_type=trigger&limit=100",
+    );
+    assert_eq!(
+        result.data[0]
+            .component_type
+            .as_ref()
+            .map(ComponentTypeValue::kind),
+        Some(ComponentType::Trigger)
+    );
+    assert_eq!(
+        serde_json::to_value(&result.data[0]).unwrap()["component_type"],
+        "source"
+    );
+    harness.assert_requests(4);
 }
 
 #[tokio::test]

@@ -253,3 +253,15 @@ fn workflow_request_debug_reports_body_size_without_body_bytes() {
     assert!(debug.contains("body_bytes: Some(4)"), "{debug}");
     assert!(!debug.contains("0, 1, 2, 255"), "{debug}");
 }
+
+#[test]
+fn component_type_trigger_filter_encodes_trigger() {
+    let request = ListComponentsRequest {
+        component_type: Some(ComponentType::Trigger),
+        ..ListComponentsRequest::default()
+    };
+    assert_eq!(
+        serde_json::to_value(request).unwrap(),
+        json!({"limit": 100, "component_type": "trigger"})
+    );
+}

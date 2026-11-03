@@ -1,5 +1,7 @@
 //! Registry enum values with lossless unknown variants.
 
+use serde::{Deserialize, Serialize};
+
 use crate::string_enum;
 
 string_enum! {
@@ -21,6 +23,37 @@ string_enum! {
         Action => "action",
         /// A deployable trigger.
         Trigger => "trigger",
+    }
+}
+
+/// A response component kind that preserves the original provider text.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(transparent)]
+pub struct ComponentTypeValue(String);
+
+impl ComponentTypeValue {
+    /// Returns the semantic kind, treating `source` as a trigger.
+    pub fn kind(&self) -> ComponentType {
+        match self.0.as_str() {
+            "action" => ComponentType::Action,
+            "trigger" | "source" => ComponentType::Trigger,
+            _ => ComponentType::Other(self.0.clone()),
+        }
+    }
+
+    /// Returns the original provider text.
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<ComponentType> for ComponentTypeValue {
+    fn from(kind: ComponentType) -> Self {
+        Self(match kind {
+            ComponentType::Action => "action".into(),
+            ComponentType::Trigger => "trigger".into(),
+            ComponentType::Other(value) => value,
+        })
     }
 }
 
