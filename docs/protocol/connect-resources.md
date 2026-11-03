@@ -55,9 +55,8 @@ seconds. An integer in any other date field MUST decode as epoch milliseconds.
 seconds, because every published Pipedream example since 2020 shows them in
 epoch seconds. Following the OpenAPI document, which says epoch milliseconds
 for six of these fields and gives `schedule_changed_at` no unit, was rejected
-because it decodes each published example date to January 1970. Only a live
-Pipedream response or a Pipedream statement that gives another unit can reopen
-this decision.
+because it decodes each published example date to January 1970. A live
+response confirmed epoch seconds for a new HTTP interface.
 
 A date field MUST re-encode in the wire form that it decoded. When a field that
 the OpenAPI document types as an integer decodes an integer value, it MUST
