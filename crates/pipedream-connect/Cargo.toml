@@ -1,0 +1,37 @@
+[package]
+name = "pipedream-connect"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "An async Rust client for the Pipedream Connect API."
+readme = "README.md"
+keywords = ["pipedream", "connect", "api", "oauth", "integrations"]
+categories = ["api-bindings", "web-programming::http-client"]
+
+[dependencies]
+async-trait.workspace = true
+base64.workspace = true
+bytes.workspace = true
+http.workspace = true
+httpdate.workspace = true
+internal-error.workspace = true
+pipedream-connect-types.workspace = true
+reqwest = { workspace = true, optional = true }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+unimock = { workspace = true, optional = true }
+url.workspace = true
+
+[features]
+default = ["reqwest"]
+reqwest = ["dep:reqwest"]
+unimock = ["dep:unimock"]
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "net", "io-util"] }
+unimock.workspace = true

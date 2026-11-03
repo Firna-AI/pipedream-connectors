@@ -1,0 +1,80 @@
+# Accounts and users operations
+
+These operations manage connected accounts in a project and partition them by
+external user.
+
+## Operation inventory
+
+<!-- markdownlint-disable MD013 -->
+
+| Method | Path | OpenAPI operationId |
+| --- | --- | --- |
+| GET | `/v1/connect/{project_id}/accounts` | `listAccounts` |
+| POST | `/v1/connect/{project_id}/accounts` | `createAccount` |
+| GET | `/v1/connect/{project_id}/accounts/{account_id}` | `retrieveAccount` |
+| DELETE | `/v1/connect/{project_id}/accounts/{account_id}` | `deleteAccount` |
+| DELETE | `/v1/connect/{project_id}/apps/{app_id}/accounts` | `deleteAccountByApp` |
+| GET | `/v1/connect/{project_id}/users` | `listUsers` |
+| DELETE | `/v1/connect/{project_id}/users/{external_user_id}` | `deleteUserExternalUser` |
+| GET | `/v1/connect/{project_id}/users/{external_user_id}/accounts` | `listUserAccounts` |
+
+<!-- markdownlint-enable MD013 -->
+
+## Account queries and credentials
+
+Account list operations support external user, app, OAuth app, cursor, and
+`include_credentials` filters when the operation defines them.
+
+An account retrieve operation supports `include_credentials`.
+
+`include_credentials=false` is the default.
+
+`include_credentials=true` MAY return the account's credential object for
+bring-your-own-OAuth apps.
+
+The client MUST wrap every returned credential value as a credential-class
+value before exposing diagnostics.
+
+The client MUST preserve app-specific credential fields inside the credential
+object.
+
+Account and external-user list operations use the common cursor contract.
+The user-account subresource returns a bare account array because its OpenAPI
+response has no page metadata or cursor query.
+
+**Decision.** The SDK preserves the bare user-account response shape from the
+OpenAPI operation. Wrapping it in `Page<Account>` was rejected because it
+would fabricate pagination metadata and a cursor contract that the operation
+does not define.
+
+Account creation and retrieval return a bare account object.
+
+## Account creation and deletion
+
+Account creation accepts an external user, app or OAuth app, configuration
+mapping, and an optional Connect token as defined by the operation.
+
+Account creation MAY send `external_user_id` and `oauth_app_id` query values.
+
+Account retrieval and deletion send `external_user_id` when the operation
+uses an `AccountRef` ownership check.
+
+An owned account call MUST return `NotFound` when the returned account belongs
+to another external user or has no `external_id`.
+
+A filtered account list MUST fail with `NotFound` when any returned account
+belongs to another external user or has no `external_id`.
+
+A user account list MUST fail with `NotFound` when any returned account belongs
+to another external user or has no `external_id`.
+
+Deleting an account removes only the selected account.
+
+Deleting accounts by app removes the selected app's accounts in the project
+scope.
+
+Deleting an external user removes the user and all resources that Pipedream
+associates with that user.
+
+The client MUST send a project and external user value on every user-scoped
+operation.

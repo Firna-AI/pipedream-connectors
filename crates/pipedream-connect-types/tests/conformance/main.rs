@@ -1,0 +1,216 @@
+//! Schema-generated response and request conformance checks.
+
+#![allow(clippy::disallowed_methods)]
+
+use std::fs;
+
+use pipedream_connect_types::*;
+use serde::{Serialize, de::DeserializeOwned};
+use serde_json::Value;
+
+#[path = "../_support/conformance_extra.rs"]
+mod conformance_extra;
+#[path = "query_schemas_tests.rs"]
+mod query_schemas_tests;
+#[path = "request_schemas_tests.rs"]
+mod request_schemas_tests;
+#[path = "../_support/samples.rs"]
+mod samples;
+#[path = "timestamp_tests.rs"]
+mod timestamp_tests;
+
+use conformance_extra::HasExtra;
+use samples::{Mode, assert_preserved};
+
+const FIXTURE: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/tests/fixtures/pipedream_openapi_swagger.json"
+);
+type Decode = fn(&str, Value, Value);
+
+fn covered() -> Vec<(&'static str, Decode)> {
+    vec![
+        ("Account", decode::<Account>),
+        ("App", decode::<App>),
+        ("AppOverride", decode::<AppOverride>),
+        ("ConfigurePropResponse", decode::<ConfigurePropResponse>),
+        ("ConnectUsageResponse", decode::<ConnectUsageResponse>),
+        ("CreateOAuthTokenResponse", decode::<OAuthTokenResponse>),
+        ("CreateTokenResponse", decode::<ConnectTokenResponse>),
+        ("DeployTriggerResponse", decode::<DeployTriggerResponse>),
+        ("ErrorResponse", decode::<ErrorResponse>),
+        ("GetAppCategoryResponse", decode::<AppCategory>),
+        ("GetAppResponse", decode::<Data<App>>),
+        ("GetAccountsResponse", decode::<GetAccountsResponse>),
+        ("GetComponentResponse", decode::<Data<Component>>),
+        ("GetComponentsResponse", decode::<Page<Component>>),
+        (
+            "GetTriggerEventsResponse",
+            decode::<GetTriggerEventsResponse>,
+        ),
+        ("GetTriggerResponse", decode::<GetTriggerResponse>),
+        (
+            "GetTriggerWebhooksResponse",
+            decode::<GetTriggerWebhooksResponse>,
+        ),
+        (
+            "GetTriggerWorkflowsResponse",
+            decode::<GetTriggerWorkflowsResponse>,
+        ),
+        ("GetTriggersResponse", decode::<GetTriggersResponse>),
+        ("GetUsersResponse", decode::<GetUsersResponse>),
+        ("GetWebhookResponse", decode::<GetWebhookResponse>),
+        (
+            "GetWebhookWithSigningKeyResponse",
+            decode::<GetWebhookWithSigningKeyResponse>,
+        ),
+        ("ListAccountsResponse", decode::<ListAccountsResponse>),
+        (
+            "ListAppCategoriesResponse",
+            decode::<ListAppCategoriesResponse>,
+        ),
+        (
+            "ListAppOverridesResponse",
+            decode::<ListAppOverridesResponse>,
+        ),
+        ("ListAppsResponse", decode::<ListAppsResponse>),
+        ("ListOauthAppsResponse", decode::<ListOauthAppsResponse>),
+        ("ListProjectsResponse", decode::<ListProjectsResponse>),
+        ("OauthApp", decode::<OauthApp>),
+        ("Project", decode::<Project>),
+        ("ProjectInfoResponse", decode::<ProjectInfo>),
+        ("ReloadPropsResponse", decode::<ReloadPropsResponse>),
+        ("RunActionResponse", decode::<RunActionResponse>),
+        ("SetWebhookResponse", decode::<SetWebhookResponse>),
+        ("ValidateTokenResponse", decode::<ValidateTokenResponse>),
+    ]
+}
+
+#[test]
+fn every_response_union_map_null_and_optional_shape_decodes() {
+    let document: Value = serde_json::from_str(&fs::read_to_string(FIXTURE).unwrap()).unwrap();
+    let schemas = document["components"]["schemas"].as_object().unwrap();
+    for (name, decode) in covered() {
+        let schema = &schemas[name];
+        for mode in [Mode::Full, Mode::Minimal, Mode::Nullable] {
+            for sample in samples::samples(schema, schemas, mode, true) {
+                let expected = samples::expected_response(&sample, schema, schemas);
+                decode(name, sample, expected);
+            }
+        }
+    }
+}
+
+#[test]
+fn documented_response_examples_decode_directly() {
+    let document: Value = serde_json::from_str(&fs::read_to_string(FIXTURE).unwrap()).unwrap();
+    for (path, operations) in document["paths"].as_object().unwrap() {
+        for (method, operation) in operations.as_object().unwrap() {
+            let Some(responses) = operation["responses"].as_object() else {
+                continue;
+            };
+            for (status, response) in responses {
+                let Some(content) = response["content"].as_object() else {
+                    continue;
+                };
+                for body in content.values() {
+                    for value in response_examples(body) {
+                        let name = body["schema"]["$ref"]
+                            .as_str()
+                            .and_then(|reference| reference.rsplit('/').next());
+                        if let Some((name, decode)) = covered()
+                            .into_iter()
+                            .find(|(covered, _)| Some(*covered) == name)
+                        {
+                            let schemas = document["components"]["schemas"].as_object().unwrap();
+                            let expected =
+                                samples::expected_response(&value, &body["schema"], schemas);
+                            decode(name, value, expected);
+                        } else {
+                            let decoded: Value = serde_json::from_value(value.clone())
+                                .unwrap_or_else(|error| {
+                                    panic!("{path} {method} {status}: {error}")
+                                });
+                            assert_eq!(decoded, value);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn decode<T: DeserializeOwned + Serialize + HasExtra>(name: &str, sample: Value, expected: Value) {
+    let decoded: T = serde_json::from_value(sample.clone())
+        .unwrap_or_else(|error| panic!("{name}: {error}\n{sample}"));
+    decoded.check_extra();
+    let encoded = serde_json::to_value(decoded).unwrap();
+    assert_preserved(&expected, &encoded, name);
+}
+
+fn response_examples(body: &Value) -> Vec<Value> {
+    let mut values = Vec::new();
+    if let Some(example) = body.get("example") {
+        values.push(example.clone());
+    }
+    if let Some(examples) = body["examples"].as_object() {
+        values.extend(
+            examples
+                .values()
+                .filter_map(|example| example.get("value").cloned()),
+        );
+    }
+    values
+}
+
+#[test]
+fn absent_nonnullable_response_fields_do_not_become_null() {
+    let account: Account = serde_json::from_value(serde_json::json!({"id":"apn_sample"})).unwrap();
+    let encoded = serde_json::to_value(account).unwrap();
+    for field in [
+        "healthy",
+        "external_id",
+        "app",
+        "created_at",
+        "updated_at",
+        "authorized_scopes",
+        "expires_at",
+    ] {
+        assert!(
+            encoded.get(field).is_none(),
+            "fabricated {field}: {encoded}"
+        );
+    }
+    assert_eq!(encoded.get("name"), Some(&Value::Null));
+    let page: PageInfo = serde_json::from_value(serde_json::json!({})).unwrap();
+    let encoded = serde_json::to_value(page).unwrap();
+    assert!(encoded.get("count").is_none());
+    assert!(encoded.get("total_count").is_none());
+    assert_eq!(encoded.get("start_cursor"), Some(&Value::Null));
+}
+
+#[test]
+fn component_type_responses_classify_and_preserve_wire_text() {
+    for (wire, kind) in [
+        ("source", ComponentType::Trigger),
+        ("trigger", ComponentType::Trigger),
+        ("action", ComponentType::Action),
+        ("widget", ComponentType::Other("widget".into())),
+    ] {
+        let component: Component = serde_json::from_value(serde_json::json!({
+            "key": "google_calendar-new-event",
+            "name": "New event",
+            "version": "1.0.0",
+            "configurable_props": [],
+            "component_type": wire,
+        }))
+        .unwrap();
+        let value = component.component_type.as_ref().unwrap();
+        assert_eq!(value.kind(), kind, "{wire}");
+        assert_eq!(value.as_str(), wire, "{wire}");
+        assert_eq!(
+            serde_json::to_value(&component).unwrap()["component_type"],
+            wire
+        );
+    }
+}

@@ -1,0 +1,26 @@
+[package]
+name = "pipedream-connect-webhooks"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Webhook signature verification and event models for Pipedream Connect."
+readme = "README.md"
+keywords = ["pipedream", "connect", "webhooks", "hmac", "signatures"]
+categories = ["api-bindings", "web-programming"]
+
+[features]
+default = []
+unimock = ["dep:unimock"]
+
+[dependencies]
+hmac.workspace = true
+hex.workspace = true
+pipedream-connect-types.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+subtle.workspace = true
+thiserror.workspace = true
+unimock = { workspace = true, optional = true }
