@@ -91,14 +91,14 @@ async fn live_pipedream_google_calendar_registry() {
             && component
                 .component_type
                 .as_ref()
-                .is_some_and(|kind| kind == &ComponentType::Action)
+                .is_some_and(|value| value.kind() == ComponentType::Action)
     }));
     assert!(triggers.data.iter().all(|component| {
         !component.key.as_str().is_empty()
             && component
                 .component_type
                 .as_ref()
-                .is_some_and(|kind| kind == &ComponentType::Trigger)
+                .is_some_and(|value| value.kind() == ComponentType::Trigger)
     }));
     eprintln!(
         "read Google Calendar and listed {} actions and {} triggers",

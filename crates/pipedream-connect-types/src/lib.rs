@@ -47,8 +47,9 @@ pub use props::{
 };
 pub use registry::{
     App, AppAuthType, AppCategory, AppSortKey, Component, ComponentStash, ComponentType,
-    GetComponentRequest, ListAppsRequest, ListComponentsRequest, ListRegistryRequest, ProxySupport,
-    RegistryKind, ScopeProfile, ScopeProfileName, SortDirection, ToolAnnotations,
+    ComponentTypeValue, GetComponentRequest, ListAppsRequest, ListComponentsRequest,
+    ListRegistryRequest, ProxySupport, RegistryKind, ScopeProfile, ScopeProfileName, SortDirection,
+    ToolAnnotations,
 };
 pub use secret::{ConnectToken, Environment, SecretJson, SecretString};
 pub use shared::{Timestamp, UnknownFields};

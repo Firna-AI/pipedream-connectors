@@ -188,3 +188,29 @@ fn absent_nonnullable_response_fields_do_not_become_null() {
     assert!(encoded.get("total_count").is_none());
     assert_eq!(encoded.get("start_cursor"), Some(&Value::Null));
 }
+
+#[test]
+fn component_type_responses_classify_and_preserve_wire_text() {
+    for (wire, kind) in [
+        ("source", ComponentType::Trigger),
+        ("trigger", ComponentType::Trigger),
+        ("action", ComponentType::Action),
+        ("widget", ComponentType::Other("widget".into())),
+    ] {
+        let component: Component = serde_json::from_value(serde_json::json!({
+            "key": "google_calendar-new-event",
+            "name": "New event",
+            "version": "1.0.0",
+            "configurable_props": [],
+            "component_type": wire,
+        }))
+        .unwrap();
+        let value = component.component_type.as_ref().unwrap();
+        assert_eq!(value.kind(), kind, "{wire}");
+        assert_eq!(value.as_str(), wire, "{wire}");
+        assert_eq!(
+            serde_json::to_value(&component).unwrap()["component_type"],
+            wire
+        );
+    }
+}

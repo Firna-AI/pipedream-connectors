@@ -8,7 +8,7 @@ use pipedream_connect_types::{
     AppSlug, Component, ComponentType, Cursor, Data, ListComponentsRequest, Page, PageInfo,
     PageRequest, RegistryKind, UnknownFields,
 };
-use serde_json::json;
+use serde_json::{Value, json};
 use unimock::{MockFn, matching};
 
 use crate::report::exit::Exit;
@@ -19,7 +19,7 @@ fn component() -> Component {
         "key": "google_calendar-new-event",
         "name": "New event",
         "version": "0.1.2",
-        "component_type": "trigger",
+        "component_type": "source",
         "configurable_props": [
             {"name": "googleCalendar", "type": "app", "app": "google_calendar"},
             {"name": "calendarId", "type": "string", "remoteOptions": true},
@@ -84,6 +84,8 @@ async fn components_list_maps_every_filter_and_prints_the_page() {
     .await;
     assert_eq!(ran.exit, Exit::Success);
     assert_eq!(ran.stdout, printed(&page()));
+    let output: Value = serde_json::from_str(&ran.stdout).unwrap();
+    assert_eq!(output["data"][0]["component_type"], "source");
 }
 
 #[tokio::test]
