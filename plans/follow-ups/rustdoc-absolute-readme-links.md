@@ -6,7 +6,7 @@
 - **Added:** 2026-11-02, from branch `calummoore/pipedream-rust-sdk-plan`.
   Finding 63 of the final review of 2026-10-22, from its re-review. The user
   chose outcome A on 2026-10-26.
-- **Location:** `crates/pipedream-connect-types/README.md:120-123`,
+- **Location:** `crates/pipedream-connect-types/README.md:123-126`,
   `crates/pipedream-connect/README.md:313-316`, and
   `crates/pipedream-connect-webhooks/README.md:120-122`.
 - **Reason:** The new links point to the `main` branch, and `main` holds the

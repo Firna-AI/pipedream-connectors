@@ -47,8 +47,17 @@ event data. For webhook payloads, the exact-text fields are defined in the
 Date fields MUST accept RFC 3339 strings. An integer in `usage_start_ts` or
 `usage_end_ts` MUST decode as epoch seconds. An integer in `created_at` or
 `updated_at` on a project webhook or deployed trigger webhook MUST decode as
-epoch seconds. An integer in any other date field MUST decode as epoch
-milliseconds.
+epoch seconds. An integer in `created_at`, `updated_at`, or
+`schedule_changed_at` on a deployed trigger emitter MUST decode as epoch
+seconds. An integer in any other date field MUST decode as epoch milliseconds.
+
+**Decision.** Integer dates on a deployed trigger emitter decode as epoch
+seconds, because every published Pipedream example since 2020 shows them in
+epoch seconds. Following the OpenAPI document, which says epoch milliseconds
+for six of these fields and gives `schedule_changed_at` no unit, was rejected
+because it decodes each published example date to January 1970. Only a live
+Pipedream response or a Pipedream statement that gives another unit can reopen
+this decision.
 
 A date field MUST re-encode in the wire form that it decoded. When a field that
 the OpenAPI document types as an integer decodes an integer value, it MUST

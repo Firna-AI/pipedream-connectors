@@ -92,7 +92,7 @@
   - `docs/protocol/connect-client.md:41-42` says that the token request MUST
     contain `client_secret`. So JWT client authentication changes a
     requirement, and the user decides it.
-  - `docs/protocol/connect-resources.md:103-107` keeps the common grammar for
+  - `docs/protocol/connect-resources.md:112-116` keeps the common grammar for
     app override IDs, although the OpenAPI document shows `^ao_`. It adds no
     prefix rule without a user decision. So `app_override_id` uses the
     existing `AppOverrideId` type.
@@ -158,10 +158,19 @@
     follow-up item records it.
   - `cargo xtask check` passes.
 - **Related:**
-  - `plans/follow-ups/emitter-date-unit.md`, same code. The live document
-    still says "epoch milliseconds" for the emitter dates, so this refresh
-    does not settle that item. A size rule from that item also removes the
-    need for the seconds decoder of step 5.
+  - A closed decision on the same code. Since the user decision of
+    2026-11-03, the emitter dates decode as epoch seconds: `created_at` and
+    `updated_at` of `DeployedComponent`, `HttpInterface`, and
+    `TimerInterface`, and `schedule_changed_at` of `TimerInterface`. The
+    reason is that every published Pipedream example since 2020 shows these
+    dates in epoch seconds. The live document of 2026-11-02 still says "epoch
+    milliseconds" for six of these dates, and it gives `schedule_changed_at`
+    no unit. So the conformance test records an exception for each of the
+    seven emitter dates. The refresh must keep these exceptions, unless
+    Pipedream corrects its text. When the text of a field changes to epoch
+    seconds, the refresh removes the exception of that field. That decision
+    added no size rule to the shared date decoder, so step 5 still needs the
+    seconds decoder.
   - `plans/follow-ups/deployed-trigger-email-prefix.md`, same code. That item
     asks how the SDK accepts the IDs of email triggers, which start with
     `ei_`. The live document of 2026-11-02 has no email interface, so this

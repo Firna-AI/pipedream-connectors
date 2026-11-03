@@ -4,10 +4,11 @@
   **Confidence:** High. **Harder later:** No.
 - **Kind:** Needs decision.
 - **Added:** 2026-11-02, from branch `calummoore/pipedream-sdk-j-docs`. A
-  check of the emitter date item, `plans/follow-ups/emitter-date-unit.md`,
+  check of the emitter date item,
+  [`plans/follow-ups/emitter-date-unit.md`](https://github.com/futex-ai/pipedream-connectors/blob/4c045ce28e598b59a7c643157d21944fcf185de6/plans/follow-ups/emitter-date-unit.md),
   found the email trigger examples on 2026-11-02.
 - **Location:** `crates/pipedream-connect-types/src/ids.rs:110-117`,
-  `docs/protocol/connect-resources.md:80-108`,
+  `docs/protocol/connect-resources.md:89-117`,
   `crates/pipedream-connect-types/src/triggers/emitters.rs:110-151`,
   `crates/pipedream-cli/src/report/input.rs:146`,
   `crates/pipedream-cli/src/commands/triggers/args.rs:45`,
@@ -144,12 +145,13 @@
     `email_address`, `created_at`, `updated_at`, `type`, and unknown fields.
     Add the variant `Emitter::EmailInterface` and its arm in `check_trigger`,
     in `crates/pipedream-connect/src/resources/trigger_operations.rs`. No
-    source gives the `type` value, and the emitter date unit is still open,
-    so a live run with Pipedream credentials must confirm both. The new
-    variant breaks each host `match` on `Emitter` without a wildcard arm,
-    because the enum is not `#[non_exhaustive]`. Hosts that read email
-    interfaces from `Emitter::Other` also stop getting them there.
-    Effort: Medium.
+    source gives the `type` value, so a live run with Pipedream credentials
+    must confirm it. The two dates use epoch seconds, as the protocol date
+    rule requires for each deployed trigger emitter since the user decision
+    of 2026-11-03. The new variant breaks each host `match` on `Emitter`
+    without a wildcard arm, because the enum is not `#[non_exhaustive]`. Hosts
+    that read email interfaces from `Emitter::Other` also stop getting them
+    there. Effort: Medium.
 - **Left out:**
   - Change nothing, and let each host send these requests with `ApiRequest`
     and `PipedreamClient::dispatcher`. It fails the goal, because the trigger
@@ -172,9 +174,13 @@
   HTTP and timer interfaces. The commit added `hi_` and `ti_` from the OpenAPI
   response patterns.
 - **Related:**
-  - `plans/follow-ups/emitter-date-unit.md`, same code. Both items change the
-    emitter model in `emitters.rs`. The date unit that it picks also applies
-    to the two dates of the typed model in E.
+  - A closed decision on the same code. Since the user decision of
+    2026-11-03, the emitter dates in `emitters.rs` decode as epoch seconds:
+    `created_at` and `updated_at` of each typed emitter, and
+    `schedule_changed_at` of `TimerInterface`. The two dates of the typed
+    model in E use the same unit. That decision also adds a live test that
+    checks the `type` field of each emitter that it deploys. The live run of
+    E can share that test.
   - `plans/follow-ups/openapi-fixture-refresh.md`, same code. The OpenAPI copy
     lacks the email interface, and so does the live document of 2026-11-02.
     So that refresh does not fix this item. D needs one more refresh after

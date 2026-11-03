@@ -11,9 +11,12 @@ requests and responses without an HTTP client or an async runtime.
   administration models.
 - Decode date fields from RFC 3339 strings. Integers in `usage_start_ts` and
   `usage_end_ts`, and in the `created_at` and `updated_at` fields of project
-  webhooks and deployed trigger webhooks, use epoch seconds. Integers in all
-  other date fields use epoch milliseconds. Preserve the decoded wire form when
-  models re-encode. Call `Timestamp::as_datetime` for the UTC value.
+  webhooks and deployed trigger webhooks, use epoch seconds. Integers in the
+  `created_at`, `updated_at`, and `schedule_changed_at` fields of the
+  `DeployedComponent`, `HttpInterface`, and `TimerInterface` emitters also use
+  epoch seconds. Integers in all other date fields use epoch milliseconds.
+  Preserve the decoded wire form when models re-encode. Call
+  `Timestamp::as_datetime` for the UTC value.
 - Send trigger callback URLs unchanged when a client sends a deployment or
   webhook update.
 - Preserve unknown response fields, enum values, and property definitions.

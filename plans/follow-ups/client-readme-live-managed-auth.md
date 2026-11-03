@@ -57,8 +57,11 @@
 - **Previous examples:** On 2026-10-23, commit `be03dc0` corrected the
   sentence of the same README that overstated the coverage test.
 - **Related:**
-  - `plans/follow-ups/emitter-date-unit.md`, same code. Option F there adds a
-    live test, and the Key Code list must then name it too.
+  - A closed decision on the same code. Since the user decision of
+    2026-11-03, the emitter dates of deployed triggers decode as epoch
+    seconds. That decision also adds a live test that deploys the triggers
+    `http-new-requests` and `schedule-custom-interval` and checks their
+    dates. The Key Code list must name that live test too.
   - `plans/follow-ups/client-readme-dot-identifier-policy.md`, same code. That
     item fixes a stale sentence on dot identifiers in the same README. One
     branch can fix both items.

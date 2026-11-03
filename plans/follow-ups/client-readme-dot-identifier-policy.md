@@ -32,7 +32,7 @@
   - The decision had two options. One rejected `.` and `..` identifiers
     before the token call. The other kept them through a URL form that does
     not normalize them. On 2026-10-26 the user chose to reject them.
-  - `docs/protocol/connect-resources.md:71` says: "An identifier MUST NOT be
+  - `docs/protocol/connect-resources.md:80` says: "An identifier MUST NOT be
     exactly `.` or `..`." Its decision says: "Dot segments were rejected
     because URL path normalization could route a request to another
     resource."
@@ -42,7 +42,7 @@
     `common_grammar_checks_all_forbidden_bytes_and_lengths` in
     `crates/pipedream-connect-types/src/_tests_/ids_tests.rs` checks the
     rejection.
-  - `crates/pipedream-connect-types/README.md:34` says: "Path identifiers
+  - `crates/pipedream-connect-types/README.md:37` says: "Path identifiers
     reject the dot segments `.` and `..`."
   - A raw `ApiPath` segment can still be `.` or `..`, and the URL library
     skips it. The test
