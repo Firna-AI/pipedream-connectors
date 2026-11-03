@@ -661,6 +661,24 @@ no user answer. Each records the alternative and the reason.
   because a delete with a wrong ID would then succeed silently. Rejected: a
   CLI copy of the removed URL rule, because the SDK no longer has that
   policy.
+- **Design calls of Milestones 16 to 18 (agent, 2026-11-02 and 2026-11-03).**
+  These are the agent's own calls under the decision test.
+  - The account check of a connection webhook covers `CONNECTION_SUCCESS`
+    only, because an error event carries no account (2026-11-02).
+  - The SDK does not plan a legacy REST client. Pipedream Workflows end on
+    2027-03-31, the REST reference page returned HTTP 404, and no known
+    consumer needs the client (2026-11-02).
+  - Raw `ApiPath` dot segments stay skipped, as a test pins. A rejection would
+    add a validation (2026-11-02).
+  - Responses hold the component type as `ComponentTypeValue`, which keeps the
+    wire text and gives its `ComponentType` through `kind()`. Filters take a
+    `ComponentType`. `ComponentType::Trigger` sends `trigger`.
+    `ComponentType::Other` sends its own string, so a filter can still hold
+    `source`, which Pipedream ignores. Rejected: a closed filter type, because
+    the lossless models keep unknown values (2026-11-03).
+  - The CLI requests the OAuth scope `connect:*`. Pipedream rejects the usage
+    call for the default top-level scope `*`, and every CLI command uses a
+    Connect route (2026-11-03).
 
 ## Open decisions
 
@@ -1576,6 +1594,11 @@ Depends on: Milestone 17.
     the list filter and the match target. Responses hold a new wire type,
     `ComponentTypeValue`, that keeps the original text and gives its
     `ComponentType` through `kind()`. No filter can then hold `source`.
+- [x] Correction (2026-11-03, review finding 91): the design call above
+      overstates the filter. `ComponentType::Trigger` sends `trigger`.
+      `ComponentType::Other` sends its own string, so a filter can still hold
+      `source`. "Design calls of Milestones 16 to 18" under "Design decisions"
+      holds the call in force.
 - [x] Run the blocked live TODOs of Milestones 5, 7, 10, and 11, and the new
       live test, against the development project.
       Evidence: `.context/pipedream-connect-sdk/live-pipedream-m18b.log` and
