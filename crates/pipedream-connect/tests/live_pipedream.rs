@@ -9,8 +9,9 @@ use pipedream_connect::PipedreamClient;
 use pipedream_connect::config::ClientCredentials;
 use pipedream_connect_types::{
     AccountId, AppSlug, ComponentKey, ComponentType, ConfiguredProps, DeleteTriggerRequest,
-    DeployTriggerRequest, DeployTriggerResponse, DeployedTriggerId, Emitter, Environment,
-    ExternalUserId, ListDeployedTriggersRequest, ListRegistryRequest, PageRequest, ProjectId,
+    DeployTriggerRequest, DeployTriggerResponse, DeployedTriggerId, Emitter, EmitterType,
+    Environment, ExternalUserId, ListDeployedTriggersRequest, ListRegistryRequest, PageRequest,
+    ProjectId,
 };
 
 #[path = "_support/live_emitter_dates.rs"]
@@ -240,17 +241,17 @@ async fn live_pipedream_emitter_dates_are_recent() {
     let mut trigger_ids = Vec::new();
     let checks = async {
         let deployments = [
-            ("http-new-requests", None),
+            ("http-new-requests", EmitterType::Http, None),
             (
                 "schedule-custom-interval",
+                EmitterType::Timer,
                 Some(
                     serde_json::from_value(serde_json::json!({"cron": {"intervalSeconds": 900}}))
                         .expect("valid schedule props"),
                 ),
             ),
         ];
-        let mut deployed = Vec::new();
-        for (component, configured_props) in deployments {
+        for (component, emitter_type, configured_props) in deployments {
             let response = client
                 .triggers()
                 .deploy(DeployTriggerRequest {
@@ -267,24 +268,21 @@ async fn live_pipedream_emitter_dates_are_recent() {
                 .map_err(|error| format!("deploy {component}: {error:?}"))?;
             let id = emitter_id(&response.data).ok_or("deployment has no ID")?;
             trigger_ids.push(DeployedTriggerId::new(id).map_err(|error| error.to_string())?);
-            deployed.push(response.data);
-        }
-        let listed = client
-            .deployed_triggers()
-            .list(ListDeployedTriggersRequest {
-                external_user_id: external_user_id.clone(),
-                page: PageRequest::default(),
-                emitter_type: None,
-            })
-            .await
-            .map_err(|error| format!("list deployed triggers: {error:?}"))?;
-        for (id, deployment) in trigger_ids.iter().zip(&deployed) {
+            let listed = client
+                .deployed_triggers()
+                .list(ListDeployedTriggersRequest {
+                    external_user_id: external_user_id.clone(),
+                    page: PageRequest::default(),
+                    emitter_type: Some(emitter_type),
+                })
+                .await
+                .map_err(|error| format!("list deployed triggers: {error:?}"))?;
             let emitter = listed
                 .data
                 .iter()
-                .find(|emitter| emitter_id(emitter) == Some(id.as_str()))
+                .find(|emitter| emitter_id(emitter) == Some(id))
                 .ok_or_else(|| format!("new emitter {id} is missing from the list"))?;
-            check_emitter_dates(deployment)?;
+            check_emitter_dates(&response.data)?;
             check_emitter_dates(emitter)?;
         }
         Ok::<(), String>(())

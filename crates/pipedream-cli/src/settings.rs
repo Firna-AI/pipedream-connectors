@@ -137,7 +137,8 @@ impl Settings {
             self.project_id.clone(),
             self.environment.clone(),
             Authentication::ClientCredentials(credentials),
-        )?;
+        )?
+        .with_scope("connect:*");
         match &self.api_origin {
             Some(origin) => config.with_origin(&origin.url),
             None => Ok(config),
@@ -260,3 +261,7 @@ fn invalid(setting: Setting, supply: Supply) -> Error {
 #[cfg(test)]
 #[path = "_tests_/settings_tests.rs"]
 mod settings_tests;
+
+#[cfg(test)]
+#[path = "_tests_/oauth_scope_tests.rs"]
+mod oauth_scope_tests;
