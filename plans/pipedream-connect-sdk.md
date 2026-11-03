@@ -1038,8 +1038,9 @@ real API.
 - [x] Update the READMEs and the resources protocol doc only if a contract
       changed.
 - [x] Run the gate, commit, and push the independent resource work.
-- [ ] Run the live test against a development project. Blocked: the three
+- [x] Run the live test against a development project. Blocked: the three
       Pipedream credential variables are absent.
+  - Done on 2026-11-03. Evidence: `.context/pipedream-connect-sdk/smoke.md`.
 
 Evidence: `.context/registry-resources/` holds targeted checks, the live-test
 skip, documentation validation, and contract notes.
@@ -1092,8 +1093,9 @@ Summary: deploy and manage triggers for an external user.
 - [x] Update the READMEs and the resources protocol doc only if a contract
       changed.
 - [x] Run the complete gate and commit the branch without pushing.
-- [ ] Run the trigger live test against a development project. Blocked: the
+- [x] Run the trigger live test against a development project. Blocked: the
       required Pipedream credential and connected-account variables are absent.
+  - Done on 2026-11-03. Evidence: `.context/pipedream-connect-sdk/smoke.md`.
 
 ## Milestone 8: Administration resources
 
@@ -1184,7 +1186,7 @@ resource traits.
       Evidence: `.context/cli/review-fixes-red.txt`,
       `.context/cli/secret-debug-red.txt`, and
       `.context/cli/review-fixes-green.txt` in the CLI worktree.
-- [ ] Run the gate, run every command against a development project,
+- [x] Run the gate, run every command against a development project,
       commit, and push.
   - [x] Run the gate and commit the registry and execution commands. The
         assigned worktree branch does not push. The orchestrator merges it.
@@ -1197,8 +1199,9 @@ resource traits.
         the gate, and commit. Evidence: `.context/cli/gate-phase3.txt`,
         `.context/cli/smoke-phase3.txt`, and `.context/cli/merge2-audit.txt`
         in the CLI worktree.
-  - [ ] Run every command against a development project. Blocked: the
+  - [x] Run every command against a development project. Blocked: the
         Pipedream credential variables are absent.
+    - Done on 2026-11-03. Evidence: `.context/pipedream-connect-sdk/smoke.md`.
 
 ## Milestone 11: Smoke and release readiness
 
@@ -1208,14 +1211,15 @@ Summary: the SDK and the CLI are usable by a stranger.
       Quick Start compiles as a doctest.
 - [x] `cargo doc --no-deps` builds without warnings, and `Cargo.toml`
       carries description, repository, keywords, and categories.
-- [ ] Run the complete smoke against a development project: every CLI
+- [x] Run the complete smoke against a development project: every CLI
       command and both live tests. Save the output under
       `.context/pipedream-connect-sdk/smoke.md`.
 - [x] Run the credential-free smoke checks and save the output under
       `.context/pipedream-connect-sdk/smoke.md`.
-- [ ] Run every CLI command and both live tests against a development project.
+- [x] Run every CLI command and both live tests against a development project.
       Blocked: the Pipedream credential and development-project variables are
       absent.
+  - Done on 2026-11-03. Evidence: `.context/pipedream-connect-sdk/smoke.md`.
 - [x] Update the workspace README and the architecture doc for anything
       learnt.
 - [x] Run the gate, commit, and push.
@@ -1562,7 +1566,7 @@ Depends on: Milestone 17.
     the approval. No issue exists yet.
 - [x] Run the gate, commit, and push.
       Evidence: `.context/pipedream-connect-sdk/gate-m18b.log`.
-- [ ] Registry component type, outcome C of item 88, chosen by the user on
+- [x] Registry component type, outcome C of item 88, chosen by the user on
       2026-11-03: decode the response values `trigger` and `source` as one
       trigger value and keep the wire text, so that each value re-encodes
       unchanged. A list filter for triggers still sends `trigger`, because
@@ -1572,7 +1576,7 @@ Depends on: Milestone 17.
     the list filter and the match target. Responses hold a new wire type,
     `ComponentTypeValue`, that keeps the original text and gives its
     `ComponentType` through `kind()`. No filter can then hold `source`.
-- [ ] Run the blocked live TODOs of Milestones 5, 7, 10, and 11, and the new
+- [x] Run the blocked live TODOs of Milestones 5, 7, 10, and 11, and the new
       live test, against the development project.
       Evidence: `.context/pipedream-connect-sdk/live-pipedream-m18b.log` and
       `.context/pipedream-connect-sdk/smoke/`.
@@ -1599,6 +1603,12 @@ Depends on: Milestone 17.
     live run on 2026-11-03 left no emitter and no user.
   - A list call for an unknown external user creates that user in Pipedream.
     Probes must delete the users that they create.
+  - After the component type change, every live test passed on 2026-11-03,
+    and every CLI command passed. The Calendar lifecycle test needed one fix:
+    Pipedream rejects a webhook URL on a private or reserved IP address.
+- [ ] Review the diff since `9c6cddb` with the `implementation-review` skill
+      after the push. Apply the fix rule: fix the `fix now` findings, record
+      follow-up items for the rest, re-review once, and report.
 - [x] Review the diff since `198d2ab` with the `implementation-review` skill
       after the push. Apply the fix rule: fix the `fix now` findings, record
       follow-up items for the rest, re-review once, and report.
