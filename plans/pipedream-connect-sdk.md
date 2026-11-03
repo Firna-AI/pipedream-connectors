@@ -1582,9 +1582,11 @@ Depends on: Milestone 17.
     live run on 2026-11-03 left no emitter and no user.
   - A list call for an unknown external user creates that user in Pipedream.
     Probes must delete the users that they create.
-- [ ] Review the diff since `198d2ab` with the `implementation-review` skill
+- [x] Review the diff since `198d2ab` with the `implementation-review` skill
       after the push. Apply the fix rule: fix the `fix now` findings, record
       follow-up items for the rest, re-review once, and report.
+      Evidence: `.context/reviews/calummoore/pipedream-rust-sdk-plan/`.
+  - Review: finding 89, fixed in `66d1f48`. Re-review: no findings.
 - [ ] Delete the plan, as the `plans` skill says.
 - [ ] Open the pull request when every other milestone TODO is ticked, or when
       the user asks for it.
