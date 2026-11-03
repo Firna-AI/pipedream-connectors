@@ -167,7 +167,7 @@ async fn live_pipedream_google_calendar_trigger_lifecycle() {
             configured_props: Some(configured_props),
             dynamic_props_id: None,
             workflow_id: None,
-            webhook_url: Some("http://127.0.0.1:50151/pipedream-trigger-smoke".into()),
+            webhook_url: None,
             emit_on_deploy: Some(false),
         })
         .await;
