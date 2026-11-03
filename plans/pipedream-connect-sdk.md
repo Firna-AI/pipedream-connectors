@@ -1529,6 +1529,39 @@ Depends on: Milestone 16.
   - Design call (2026-11-02, agent): raw `ApiPath` dot segments stay skipped,
     as a test pins. No follow-up item, because the behaviour is safe, and a
     rejection would add a validation.
+
+## Milestone 18: Emitter date unit and the live runs
+
+Summary: on 2026-11-03 the user chose two outcomes. For the emitter date unit,
+outcome F: decode the seven emitter dates as epoch seconds now, and confirm
+the unit with a live test. The OpenAPI document says epoch milliseconds for six
+of them, but every published Pipedream example since 2020 shows epoch seconds.
+For the blocked live runs, outcome A: they stay required, and the user
+provides development-project credentials before the pull request.
+
+Depends on: Milestone 17.
+
+- [ ] Types: decode `created_at` and `updated_at` of each emitter kind, and
+      `schedule_changed_at` of the timer interface, as epoch seconds. The
+      conformance test records each field that contradicts its OpenAPI text,
+      and it covers `schedule_changed_at`.
+- [ ] Live test: deploy `http-new-requests` and `schedule-custom-interval`,
+      check that each emitter has its `type` and that each date is within a
+      day of the current time, and delete both. Add the date check to the
+      Google Calendar trigger lifecycle test.
+- [ ] Docs: the protocol date rule and its decision, the types README, and the
+      follow-up items that link to the emitter date item. Delete
+      `plans/follow-ups/emitter-date-unit.md`.
+- [ ] Draft the request that asks Pipedream to correct the six descriptions
+      and to state the unit of `schedule_changed_at`. Send it only after the
+      user approves the text and the channel.
+- [ ] Run the gate, commit, and push.
+- [ ] Run the blocked live TODOs of Milestones 5, 7, 10, and 11, and the new
+      live test, against the development project. Blocked: the client secret
+      and the project ID.
+- [ ] Review the diff since `198d2ab` with the `implementation-review` skill
+      after the push. Apply the fix rule: fix the `fix now` findings, record
+      follow-up items for the rest, re-review once, and report.
 - [ ] Delete the plan, as the `plans` skill says.
 - [ ] Open the pull request when every other milestone TODO is ticked, or when
       the user asks for it.
