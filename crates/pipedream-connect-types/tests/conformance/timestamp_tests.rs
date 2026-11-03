@@ -14,8 +14,43 @@ const FIXTURE: &str = concat!(
 
 type TimestampField<T> = (&'static str, fn(&T) -> &Timestamp);
 
+/// Decision 2026-11-03, outcome F: emitter examples use seconds despite these descriptions.
+const EMITTER_SECONDS_OVERRIDES: &[(&str, &str, Option<&str>)] = &[
+    (
+        "DeployedComponent",
+        "created_at",
+        Some("The timestamp when the component was deployed (epoch milliseconds)"),
+    ),
+    (
+        "DeployedComponent",
+        "updated_at",
+        Some("The timestamp when the component was last updated (epoch milliseconds)"),
+    ),
+    (
+        "HttpInterface",
+        "created_at",
+        Some("The timestamp when the HTTP interface was created (epoch milliseconds)"),
+    ),
+    (
+        "HttpInterface",
+        "updated_at",
+        Some("The timestamp when the HTTP interface was last updated (epoch milliseconds)"),
+    ),
+    (
+        "TimerInterface",
+        "created_at",
+        Some("The timestamp when the timer interface was created (epoch milliseconds)"),
+    ),
+    (
+        "TimerInterface",
+        "updated_at",
+        Some("The timestamp when the timer interface was last updated (epoch milliseconds)"),
+    ),
+    ("TimerInterface", "schedule_changed_at", None),
+];
+
 #[test]
-fn integer_date_fields_follow_the_openapi_epoch_unit() {
+fn integer_date_fields_follow_openapi_or_recorded_exceptions() {
     let document: Value = serde_json::from_str(&fs::read_to_string(FIXTURE).unwrap()).unwrap();
     let seconds = 1_700_000_000;
     assert_epoch_schema::<UsageRecord>(
@@ -77,7 +112,6 @@ fn integer_date_fields_follow_the_openapi_epoch_unit() {
         seconds,
     );
 
-    let milliseconds = 1_700_000_000_000;
     assert_epoch_schema::<DeployedComponent>(
         &document,
         "DeployedComponent",
@@ -91,7 +125,7 @@ fn integer_date_fields_follow_the_openapi_epoch_unit() {
             ("created_at", |value: &DeployedComponent| &value.created_at),
             ("updated_at", |value: &DeployedComponent| &value.updated_at),
         ],
-        milliseconds,
+        seconds,
     );
     assert_epoch_schema::<HttpInterface>(
         &document,
@@ -104,7 +138,7 @@ fn integer_date_fields_follow_the_openapi_epoch_unit() {
             ("created_at", |value: &HttpInterface| &value.created_at),
             ("updated_at", |value: &HttpInterface| &value.updated_at),
         ],
-        milliseconds,
+        seconds,
     );
     assert_epoch_schema::<TimerInterface>(
         &document,
@@ -114,17 +148,20 @@ fn integer_date_fields_follow_the_openapi_epoch_unit() {
             "created_at":0,"updated_at":0,"type":"TimerInterface"
         }),
         &[
+            ("schedule_changed_at", |value: &TimerInterface| {
+                &value.schedule_changed_at
+            }),
             ("created_at", |value: &TimerInterface| &value.created_at),
             ("updated_at", |value: &TimerInterface| &value.updated_at),
         ],
-        milliseconds,
+        seconds,
     );
     assert_epoch_schema::<EmittedEvent>(
         &document,
         "EmittedEvent",
         json!({"e":{},"k":"emit","ts":0,"id":"event_1"}),
         &[("ts", |value: &EmittedEvent| &value.ts)],
-        milliseconds,
+        1_700_000_000_000,
     );
 }
 
@@ -154,17 +191,28 @@ fn assert_epoch_field<T>(
 {
     let property = &document["components"]["schemas"][schema]["properties"][field];
     assert_eq!(property["type"], "integer", "{schema}.{field}");
-    let description = property["description"]
-        .as_str()
-        .unwrap_or_else(|| panic!("missing description for {schema}.{field}"));
-    let divisor =
+    let recorded = EMITTER_SECONDS_OVERRIDES
+        .iter()
+        .find(|(name, key, _)| *name == schema && *key == field);
+    let divisor = if let Some((_, _, description)) = recorded {
+        assert_eq!(
+            property.get("description"),
+            description.map(|text| json!(text)).as_ref(),
+            "review the epoch-second exception for {schema}.{field} after the OpenAPI change"
+        );
+        1
+    } else {
+        let description = property["description"]
+            .as_str()
+            .unwrap_or_else(|| panic!("missing description for {schema}.{field}"));
         if description.contains("epoch seconds") || description.contains("timestamp (seconds)") {
             1
         } else if description.contains("epoch milliseconds") {
             1_000
         } else {
             panic!("missing epoch unit for {schema}.{field}: {description}");
-        };
+        }
+    };
     sample[field] = json!(raw);
     let decoded: T = serde_json::from_value(sample).unwrap();
     let expected = Utc

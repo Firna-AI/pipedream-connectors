@@ -61,13 +61,13 @@ async fn deploy_sends_the_external_user_and_callback_options() {
 async fn list_keeps_every_emitter_variant_and_scopes_the_tenant() {
     let http = json!({
         "id": "hi_Interface123", "key": "http", "endpoint_url": "https://example.com",
-        "custom_response": false, "created_at": 1_000_000, "updated_at": 1_001_000,
+        "custom_response": false, "created_at": 1_000, "updated_at": 1_001,
         "type": "HttpInterface"
     });
     let timer = json!({
         "id": "ti_Timer123", "interval_seconds": 60, "cron": null, "timezone": "UTC",
-        "schedule_changed_at": 1_000_000, "created_at": 1_000_000,
-        "updated_at": 1_001_000, "type": "TimerInterface"
+        "schedule_changed_at": 1_000, "created_at": 1_000,
+        "updated_at": 1_001, "type": "TimerInterface"
     });
     let other = json!({"id": "future_1", "type": "FutureInterface", "future": true});
     let harness = Harness::new(vec![response(

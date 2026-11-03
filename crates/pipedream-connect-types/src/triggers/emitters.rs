@@ -26,9 +26,11 @@ pub struct DeployedComponent {
     pub configured_props: ConfiguredProps,
     /// Whether the deployment is active.
     pub active: bool,
-    /// Deployment timestamp.
+    /// Deployment timestamp in epoch seconds.
+    #[serde(deserialize_with = "crate::shared::deserialize_timestamp_seconds")]
     pub created_at: Timestamp,
-    /// Last update timestamp.
+    /// Last update timestamp in epoch seconds.
+    #[serde(deserialize_with = "crate::shared::deserialize_timestamp_seconds")]
     pub updated_at: Timestamp,
     /// Display name.
     pub name: String,
@@ -68,9 +70,11 @@ pub struct HttpInterface {
     pub endpoint_url: String,
     /// Whether custom responses are enabled.
     pub custom_response: bool,
-    /// Creation timestamp.
+    /// Creation timestamp in epoch seconds.
+    #[serde(deserialize_with = "crate::shared::deserialize_timestamp_seconds")]
     pub created_at: Timestamp,
-    /// Last update timestamp.
+    /// Last update timestamp in epoch seconds.
+    #[serde(deserialize_with = "crate::shared::deserialize_timestamp_seconds")]
     pub updated_at: Timestamp,
     /// Discriminator.
     #[serde(rename = "type")]
@@ -93,11 +97,14 @@ pub struct TimerInterface {
     pub cron: Option<String>,
     /// IANA timezone.
     pub timezone: String,
-    /// Schedule-change timestamp.
+    /// Schedule-change timestamp in epoch seconds.
+    #[serde(deserialize_with = "crate::shared::deserialize_timestamp_seconds")]
     pub schedule_changed_at: Timestamp,
-    /// Creation timestamp.
+    /// Creation timestamp in epoch seconds.
+    #[serde(deserialize_with = "crate::shared::deserialize_timestamp_seconds")]
     pub created_at: Timestamp,
-    /// Last update timestamp.
+    /// Last update timestamp in epoch seconds.
+    #[serde(deserialize_with = "crate::shared::deserialize_timestamp_seconds")]
     pub updated_at: Timestamp,
     /// Discriminator.
     #[serde(rename = "type")]
