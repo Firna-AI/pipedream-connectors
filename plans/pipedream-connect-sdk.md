@@ -1576,6 +1576,12 @@ Depends on: Milestone 17.
     `connect:*`. Pipedream rejects the usage call for the default top-level
     scope `*`, and every CLI command uses a Connect route. The SDK default
     waits in `plans/follow-ups/sdk-default-oauth-scope.md`.
+  - Review finding 89: a failed deploy response left an emitter that no run
+    removed. Fixed in `66d1f48`: the live date test uses the fixed external
+    user `pd-sdk-live-emitter-dates` and deletes it at the end of each run. A
+    live run on 2026-11-03 left no emitter and no user.
+  - A list call for an unknown external user creates that user in Pipedream.
+    Probes must delete the users that they create.
 - [ ] Review the diff since `198d2ab` with the `implementation-review` skill
       after the push. Apply the fix rule: fix the `fix now` findings, record
       follow-up items for the rest, re-review once, and report.

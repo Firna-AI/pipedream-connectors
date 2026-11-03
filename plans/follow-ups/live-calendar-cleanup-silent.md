@@ -7,9 +7,9 @@
   check of review finding 89 listed it outside the review scope on
   2026-11-03.
 - **Location:**
-  `crates/pipedream-connect/tests/_support/live_emitter_dates.rs:124-166`,
+  `crates/pipedream-connect/tests/_support/live_emitter_dates.rs:142-183`,
   `crates/pipedream-connect/tests/live_pipedream.rs:160-187`,
-  `crates/pipedream-connect/README.md:227-228`.
+  `crates/pipedream-connect/README.md:230-231`.
 - **Reason:** The reviewed change only moved this cleanup code into the
   support module, so its behaviour was outside the scope of that review.
 
