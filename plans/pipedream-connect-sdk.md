@@ -1562,6 +1562,16 @@ Depends on: Milestone 17.
     the approval. No issue exists yet.
 - [x] Run the gate, commit, and push.
       Evidence: `.context/pipedream-connect-sdk/gate-m18b.log`.
+- [ ] Registry component type, outcome C of item 88, chosen by the user on
+      2026-11-03: decode the response values `trigger` and `source` as one
+      trigger value and keep the wire text, so that each value re-encodes
+      unchanged. A list filter for triggers still sends `trigger`, because
+      Pipedream ignores the filter value `source`. Update the live registry
+      test, the protocol rule, and the README.
+  - Design call (2026-11-03, agent): the semantic enum `ComponentType` stays
+    the list filter and the match target. Responses hold a new wire type,
+    `ComponentTypeValue`, that keeps the original text and gives its
+    `ComponentType` through `kind()`. No filter can then hold `source`.
 - [ ] Run the blocked live TODOs of Milestones 5, 7, 10, and 11, and the new
       live test, against the development project.
       Evidence: `.context/pipedream-connect-sdk/live-pipedream-m18b.log` and
@@ -1571,6 +1581,8 @@ Depends on: Milestone 17.
   - The CLI smoke passed for every command that needs no connected account.
   - The registry test fails: live registry triggers report the component type
     `source`, not `trigger`. Open (2026-11-03): item 88 needs a user decision.
+    Outcome (2026-11-03): C, chosen by the user. See the component type TODO
+    above.
   - Blocked: the trigger lifecycle test, the managed-auth proxy test,
     `actions run`, and the proxy commands need a connected Google Calendar
     account for the external user `pd-sdk-live-test`.
