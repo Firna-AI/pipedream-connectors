@@ -46,8 +46,8 @@ fn deployed_trigger() -> Value {
         "configurable_props": [],
         "configured_props": {"calendarId": "primary"},
         "active": true,
-        "created_at": 1_700_000_000_000_i64,
-        "updated_at": 1_700_000_000_000_i64,
+        "created_at": 1_700_000_000_i64,
+        "updated_at": 1_700_000_000_i64,
         "name": "New event",
         "name_slug": "new-event",
         "callback_observations": null,
@@ -109,8 +109,8 @@ fn other_emitters_keep_their_fields() {
         "key": "endpoint",
         "endpoint_url": "https://example.m.pipedream.net",
         "custom_response": false,
-        "created_at": 1_700_000_000_000_i64,
-        "updated_at": 1_700_000_000_000_i64,
+        "created_at": 1_700_000_000_i64,
+        "updated_at": 1_700_000_000_i64,
     });
     assert_eq!(redacted::<Emitter>(http.clone()), http);
     let future = json!({"type": "FutureInterface", "id": "fi_1"});

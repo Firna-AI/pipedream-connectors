@@ -9,8 +9,16 @@ use pipedream_connect::PipedreamClient;
 use pipedream_connect::config::ClientCredentials;
 use pipedream_connect_types::{
     AccountId, AppSlug, ComponentKey, ComponentType, ConfiguredProps, DeleteTriggerRequest,
-    DeployTriggerRequest, DeployTriggerResponse, Emitter, Environment, ExternalUserId,
-    ListDeployedTriggersRequest, ListRegistryRequest, PageRequest, ProjectId,
+    DeployTriggerRequest, DeployTriggerResponse, DeployedTriggerId, Emitter, Environment,
+    ExternalUserId, ListDeployedTriggersRequest, ListRegistryRequest, PageRequest, ProjectId,
+};
+
+#[path = "_support/live_emitter_dates.rs"]
+mod live_emitter_dates;
+
+use live_emitter_dates::{
+    check_emitter_dates, cleanup_created_triggers, client_from_env, delete_created_triggers,
+    emitter_id,
 };
 
 #[tokio::test]
@@ -189,11 +197,12 @@ async fn live_pipedream_google_calendar_trigger_lifecycle() {
             Ok(listed) => listed,
             Err(error) => return Err(format!("{error:?}")),
         };
-        if !listed.data.iter().any(|emitter| {
+        let Some(emitter) = listed.data.iter().find(|emitter| {
             matches!(emitter, Emitter::DeployedComponent(trigger) if trigger.id == trigger_id)
-        }) {
+        }) else {
             return Err("deployed trigger was not present in the list".to_owned());
-        }
+        };
+        check_emitter_dates(emitter)?;
         Ok::<(), String>(())
     }
     .await;
@@ -216,42 +225,75 @@ async fn live_pipedream_google_calendar_trigger_lifecycle() {
     }
 }
 
-async fn cleanup_created_triggers(client: &PipedreamClient, external_user_id: &ExternalUserId) {
-    let Ok(listed) = client
-        .deployed_triggers()
-        .list(ListDeployedTriggersRequest {
-            external_user_id: external_user_id.clone(),
-            page: PageRequest::default(),
-            emitter_type: None,
-        })
-        .await
-    else {
+#[tokio::test]
+async fn live_pipedream_emitter_dates_are_recent() {
+    let Some(client) = client_from_env() else {
         return;
     };
-    for emitter in listed.data {
-        let Emitter::DeployedComponent(trigger) = emitter else {
-            continue;
-        };
-        let matches_test = trigger
-            .component_key
-            .as_ref()
-            .is_some_and(|key| key.as_str() == "google_calendar-new-or-updated-event-instant")
-            && trigger.webhook_urls.as_ref().is_some_and(|urls| {
-                urls.iter()
-                    .any(|url| url.contains("pipedream-trigger-smoke"))
-            });
-        if matches_test {
-            let _ = client
-                .deployed_triggers()
-                .delete(
-                    trigger.id,
-                    DeleteTriggerRequest {
-                        external_user_id: external_user_id.clone(),
-                        ignore_hook_errors: Some(true),
-                        missing_ok: true,
-                    },
-                )
-                .await;
+    let external_user_id = ExternalUserId::new(
+        env::var("PIPEDREAM_EXTERNAL_USER_ID")
+            .ok()
+            .filter(|value| !value.trim().is_empty())
+            .unwrap_or_else(|| "pd-sdk-live-emitter-dates".to_owned()),
+    )
+    .expect("valid external user ID");
+    let mut trigger_ids = Vec::new();
+    let checks = async {
+        let deployments = [
+            ("http-new-requests", None),
+            (
+                "schedule-custom-interval",
+                Some(
+                    serde_json::from_value(serde_json::json!({"cron": {"intervalSeconds": 900}}))
+                        .expect("valid schedule props"),
+                ),
+            ),
+        ];
+        let mut deployed = Vec::new();
+        for (component, configured_props) in deployments {
+            let response = client
+                .triggers()
+                .deploy(DeployTriggerRequest {
+                    id: ComponentKey::new(component).expect("valid live trigger key"),
+                    version: None,
+                    external_user_id: external_user_id.clone(),
+                    configured_props,
+                    dynamic_props_id: None,
+                    workflow_id: None,
+                    webhook_url: None,
+                    emit_on_deploy: Some(false),
+                })
+                .await
+                .map_err(|error| format!("deploy {component}: {error:?}"))?;
+            let id = emitter_id(&response.data).ok_or("deployment has no ID")?;
+            trigger_ids.push(DeployedTriggerId::new(id).map_err(|error| error.to_string())?);
+            deployed.push(response.data);
         }
+        let listed = client
+            .deployed_triggers()
+            .list(ListDeployedTriggersRequest {
+                external_user_id: external_user_id.clone(),
+                page: PageRequest::default(),
+                emitter_type: None,
+            })
+            .await
+            .map_err(|error| format!("list deployed triggers: {error:?}"))?;
+        for (id, deployment) in trigger_ids.iter().zip(&deployed) {
+            let emitter = listed
+                .data
+                .iter()
+                .find(|emitter| emitter_id(emitter) == Some(id.as_str()))
+                .ok_or_else(|| format!("new emitter {id} is missing from the list"))?;
+            check_emitter_dates(deployment)?;
+            check_emitter_dates(emitter)?;
+        }
+        Ok::<(), String>(())
     }
+    .await;
+    let cleanup = delete_created_triggers(&client, &external_user_id, &trigger_ids).await;
+    assert!(
+        cleanup.is_empty(),
+        "cleanup errors: {cleanup:?}; date checks: {checks:?}"
+    );
+    checks.expect("new deployed emitter dates must be recent");
 }

@@ -14,12 +14,12 @@ use crate::{
 const RFC3339: &str = "2026-01-01T00:00:00Z";
 const MILLIS: i64 = 1_767_225_600_000;
 
-fn assert_forms<T>(mut sample: Value, fields: &[&str])
+fn assert_forms<T>(mut sample: Value, fields: &[&str], integer: i64)
 where
     T: DeserializeOwned + Serialize,
 {
     for field in fields {
-        for wire in [json!(RFC3339), json!(MILLIS)] {
+        for wire in [json!(RFC3339), json!(integer)] {
             sample[field] = wire.clone();
             let decoded: T = serde_json::from_value(sample.clone()).unwrap();
             assert_eq!(
@@ -42,22 +42,27 @@ fn account_and_administration_dates_preserve_both_forms() {
             "last_refreshed_at",
             "next_refresh_at",
         ],
+        MILLIS,
     );
     assert_forms::<ExternalUser>(
         json!({"id":"user_1","external_id":"customer_1"}),
         &["created_at", "updated_at"],
+        MILLIS,
     );
     assert_forms::<ConnectTokenResponse>(
         json!({"connect_link_url":"https://example.com","token":"ctok_00000000000000000000000000000000"}),
         &["expires_at"],
+        MILLIS,
     );
     assert_forms::<AppOverride>(
         json!({"id":"override_1","name":"Override","app":{"name_slug":"github","name":"GitHub","img_src":"https://example.com"},"owner_id":"owner"}),
         &["created_at", "updated_at"],
+        MILLIS,
     );
     assert_forms::<OauthApp>(
         json!({"id":"oa_sample","client_id":"client","owner_id":"owner"}),
         &["created_at", "updated_at"],
+        MILLIS,
     );
 }
 
@@ -66,12 +71,18 @@ fn integer_schema_dates_preserve_integer_output() {
     assert_forms::<Webhook>(
         json!({"id":"wh_sample","url":"https://example.com","signing_key_set":false,"created_at":0,"updated_at":0}),
         &["created_at", "updated_at"],
+        1_767_225_600,
     );
     assert_forms::<UsageRecord>(
         json!({"credits_used":1,"usage_start_ts":0,"usage_end_ts":0}),
         &["usage_start_ts", "usage_end_ts"],
+        1_767_225_600,
     );
-    assert_forms::<EmittedEvent>(json!({"e":{},"k":"emit","ts":0,"id":"event_1"}), &["ts"]);
+    assert_forms::<EmittedEvent>(
+        json!({"e":{},"k":"emit","ts":0,"id":"event_1"}),
+        &["ts"],
+        MILLIS,
+    );
 }
 
 #[test]
@@ -156,20 +167,70 @@ fn assert_seconds<T>(
 }
 
 #[test]
+fn emitter_dates_decode_as_seconds_and_preserve_input() {
+    let seconds = 1_700_000_000;
+    let samples = [
+        json!({
+            "type":"DeployedComponent","id":"dc_sample","owner_id":"owner",
+            "component_id":"component","configurable_props":[],"configured_props":{},
+            "active":true,"created_at":seconds,"updated_at":seconds,
+            "name":"Sample","name_slug":"sample"
+        }),
+        json!({
+            "type":"HttpInterface","id":"hi_sample","key":"http",
+            "endpoint_url":"https://example.com","custom_response":false,
+            "created_at":seconds,"updated_at":seconds
+        }),
+        json!({
+            "type":"TimerInterface","id":"ti_sample","timezone":"UTC",
+            "schedule_changed_at":seconds,"created_at":seconds,"updated_at":seconds
+        }),
+    ];
+    for sample in samples {
+        let emitter: Emitter = serde_json::from_value(sample.clone()).unwrap();
+        let dates = match &emitter {
+            Emitter::DeployedComponent(value) => vec![
+                ("created_at", &value.created_at),
+                ("updated_at", &value.updated_at),
+            ],
+            Emitter::HttpInterface(value) => vec![
+                ("created_at", &value.created_at),
+                ("updated_at", &value.updated_at),
+            ],
+            Emitter::TimerInterface(value) => vec![
+                ("schedule_changed_at", &value.schedule_changed_at),
+                ("created_at", &value.created_at),
+                ("updated_at", &value.updated_at),
+            ],
+            Emitter::Other(value) => panic!("expected a typed emitter: {value}"),
+        };
+        let encoded = serde_json::to_value(&emitter).unwrap();
+        for (field, date) in dates {
+            assert_eq!(date.timestamp(), seconds, "{}.{}", sample["type"], field);
+            assert_eq!(date.timestamp_subsec_nanos(), 0);
+            assert_eq!(encoded[field], json!(seconds), "{field}");
+        }
+    }
+}
+
+#[test]
 fn trigger_and_execution_dates_preserve_both_forms() {
     assert_forms::<Emitter>(
         json!({"type":"DeployedComponent","id":"dc_sample","owner_id":"owner","component_id":"component","configurable_props":[],"configured_props":{},"active":true,"created_at":0,"updated_at":0,"name":"Sample","name_slug":"sample"}),
         &["created_at", "updated_at"],
+        1_767_225_600,
     );
     assert_forms::<HttpInterface>(
         json!({"id":"hi_sample","key":"http","endpoint_url":"https://example.com","custom_response":false,"created_at":0,"updated_at":0,"type":"HttpInterface"}),
         &["created_at", "updated_at"],
+        1_767_225_600,
     );
     assert_forms::<TimerInterface>(
         json!({"id":"ti_sample","timezone":"UTC","schedule_changed_at":0,"created_at":0,"updated_at":0,"type":"TimerInterface"}),
         &["schedule_changed_at", "created_at", "updated_at"],
+        1_767_225_600,
     );
-    assert_forms::<Observation>(json!({"k":"console.log","ts":0}), &["ts"]);
+    assert_forms::<Observation>(json!({"k":"console.log","ts":0}), &["ts"], MILLIS);
 }
 
 #[test]
