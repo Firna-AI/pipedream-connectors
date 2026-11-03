@@ -1541,24 +1541,41 @@ provides development-project credentials before the pull request.
 
 Depends on: Milestone 17.
 
-- [ ] Types: decode `created_at` and `updated_at` of each emitter kind, and
+- [x] Types: decode `created_at` and `updated_at` of each emitter kind, and
       `schedule_changed_at` of the timer interface, as epoch seconds. The
       conformance test records each field that contradicts its OpenAPI text,
       and it covers `schedule_changed_at`.
-- [ ] Live test: deploy `http-new-requests` and `schedule-custom-interval`,
+- [x] Live test: deploy `http-new-requests` and `schedule-custom-interval`,
       check that each emitter has its `type` and that each date is within a
       day of the current time, and delete both. Add the date check to the
       Google Calendar trigger lifecycle test.
-- [ ] Docs: the protocol date rule and its decision, the types README, and the
+- [x] Docs: the protocol date rule and its decision, the types README, and the
       follow-up items that link to the emitter date item. Delete
       `plans/follow-ups/emitter-date-unit.md`.
 - [ ] Draft the request that asks Pipedream to correct the six descriptions
       and to state the unit of `schedule_changed_at`. Send it only after the
       user approves the text and the channel.
-- [ ] Run the gate, commit, and push.
+- [x] Run the gate, commit, and push.
+      Evidence: `.context/pipedream-connect-sdk/gate-m18b.log`.
 - [ ] Run the blocked live TODOs of Milestones 5, 7, 10, and 11, and the new
-      live test, against the development project. Blocked: the client secret
-      and the project ID.
+      live test, against the development project.
+      Evidence: `.context/pipedream-connect-sdk/live-pipedream-m18b.log` and
+      `.context/pipedream-connect-sdk/smoke/`.
+  - The new emitter date test passed. A new HTTP interface had `created_at`
+    1793712040, 18 seconds before the current time in epoch seconds.
+  - The CLI smoke passed for every command that needs no connected account.
+  - The registry test fails: live registry triggers report the component type
+    `source`, not `trigger`. Open (2026-11-03): item 88 needs a user decision.
+  - Blocked: the trigger lifecycle test, the managed-auth proxy test,
+    `actions run`, and the proxy commands need a connected Google Calendar
+    account for the external user `pd-sdk-live-test`.
+  - The first live runs found that a list of deployed triggers without an
+    emitter type holds only deployed components, as the OpenAPI document says.
+    The new live test now filters by emitter type.
+  - Design call (2026-11-03, agent): the CLI requests the OAuth scope
+    `connect:*`. Pipedream rejects the usage call for the default top-level
+    scope `*`, and every CLI command uses a Connect route. The SDK default
+    waits in `plans/follow-ups/sdk-default-oauth-scope.md`.
 - [ ] Review the diff since `198d2ab` with the `implementation-review` skill
       after the push. Apply the fix rule: fix the `fix now` findings, record
       follow-up items for the rest, re-review once, and report.
