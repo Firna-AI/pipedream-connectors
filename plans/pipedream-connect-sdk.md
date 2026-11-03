@@ -1555,6 +1555,11 @@ Depends on: Milestone 17.
 - [ ] Draft the request that asks Pipedream to correct the six descriptions
       and to state the unit of `schedule_changed_at`. Send it only after the
       user approves the text and the channel.
+  - Outcome (2026-11-03): the user chose A, a public GitHub issue in
+    `PipedreamHQ/pipedream` as `calummoore`, with the draft text.
+  - Blocked: the sandbox GitHub token cannot create issues there (HTTP 403),
+    and two runs through the local command tool of the Mac timed out before
+    the approval. No issue exists yet.
 - [x] Run the gate, commit, and push.
       Evidence: `.context/pipedream-connect-sdk/gate-m18b.log`.
 - [ ] Run the blocked live TODOs of Milestones 5, 7, 10, and 11, and the new
