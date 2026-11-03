@@ -143,6 +143,11 @@
   - `plans/follow-ups/publish-crates-io.md`: work that waits for the answer.
     Options B and C act in or before the first release, so answer this item
     before that release.
+  - `plans/follow-ups/sdk-default-oauth-scope.md`: the same code, and work
+    that waits for the answer. That item asks which OAuth scope the SDK
+    requests when the host sets none. Workflow invocation sends the same
+    bearer, and no run checked it with the scope `connect:*`. Its option D
+    waits for the answer to this item.
 - **Recommendation:** C. No known host uses the call and no release exists,
   so a removal now migrates nobody. It also ends the only resource call that
   sends the project bearer away from the API origin.
