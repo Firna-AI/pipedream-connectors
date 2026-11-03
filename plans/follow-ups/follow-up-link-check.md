@@ -52,8 +52,9 @@
       `plans/follow-ups/library-packages-license-file.md` in one direction.
       Commit `0f8b3ad` added the reverse line.
     - Commit `4c045ce` added `plans/follow-ups/deployed-trigger-email-prefix.md`
-      with links to `plans/follow-ups/emitter-date-unit.md` and
-      `plans/follow-ups/openapi-fixture-refresh.md`. Neither item named it
+      with links to
+      [`plans/follow-ups/emitter-date-unit.md`](https://github.com/futex-ai/pipedream-connectors/blob/4c045ce28e598b59a7c643157d21944fcf185de6/plans/follow-ups/emitter-date-unit.md)
+      and `plans/follow-ups/openapi-fixture-refresh.md`. Neither item named it
       back until a review found it.
   - The gate runs format, clippy, tests, docs, a file-length audit, and a
     module-layout audit. `xtask/src/check.rs:12-22` runs the two audits.

@@ -110,7 +110,13 @@
   to the new Firna plan.
 - **Done when:** A plan in `futex-ai/firna` covers each point of the task.
   The plan is committed on the Firna branch that it targets.
-- **Related:** `plans/follow-ups/emitter-date-unit.md`, same cause. The Firna
-  mapping reads the emitter dates with `DateTime::from_timestamp_millis`. The
-  Firna plan must take each date from `Timestamp::as_datetime`, or Firna keeps
-  wrong dates after that fix.
+- **Related:** A closed decision with the same cause. Since the user decision
+  of 2026-11-03, the SDK decodes the emitter dates as epoch seconds:
+  `created_at` and `updated_at` of `DeployedComponent`, `HttpInterface`, and
+  `TimerInterface`, and `schedule_changed_at` of `TimerInterface`. The Firna
+  mapping reads these dates with `DateTime::from_timestamp_millis`, in
+  `crates/fna-connectors-pipedream/src/mapping/triggers.rs` of `futex-ai/firna`.
+  Every published Pipedream example shows these dates in epoch seconds. For
+  such a value, that mapping gives a day in January 1970. Firna must take these
+  dates from `Timestamp::as_datetime`, or it keeps the wrong dates after it
+  adopts the SDK.
