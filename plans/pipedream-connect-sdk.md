@@ -1574,9 +1574,11 @@ Depends on: Milestone 17.
 - [x] Docs: the protocol date rule and its decision, the types README, and the
       follow-up items that link to the emitter date item. Delete
       `plans/follow-ups/emitter-date-unit.md`.
-- [ ] Draft the request that asks Pipedream to correct the six descriptions
+- [x] Draft the request that asks Pipedream to correct the six descriptions
       and to state the unit of `schedule_changed_at`. Send it only after the
       user approves the text and the channel.
+  - Filed on 2026-11-03 with the approved text:
+    <https://github.com/PipedreamHQ/pipedream/issues/22407>.
   - Outcome (2026-11-03): the user chose A, a public GitHub issue in
     `PipedreamHQ/pipedream` as `calummoore`, with the draft text.
   - Blocked: the sandbox GitHub token cannot create issues there (HTTP 403),

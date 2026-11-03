@@ -53,4 +53,3 @@ cargo test -p xtask
 ### Related Docs
 
 - [SDK architecture](../docs/architecture.md)
-- [Project plan](../plans/)

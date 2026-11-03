@@ -388,4 +388,3 @@ that completed. Every failure after a sent request reads that text.
 - [Connect client protocol](../../docs/protocol/connect-client.md)
 - [Connect resources protocol](../../docs/protocol/connect-resources.md)
 - [Client crate README](../pipedream-connect/README.md)
-- [SDK plan](../../plans/pipedream-connect-sdk.md)

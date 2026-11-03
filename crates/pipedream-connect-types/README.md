@@ -131,4 +131,3 @@ crates/pipedream-connect-types/tests/fixtures/refresh-openapi.sh
 - [Connect resource protocol](../../docs/protocol/connect-resources.md)
 - [Connect client protocol](../../docs/protocol/connect-client.md)
 - [SDK architecture](../../docs/architecture.md)
-- [SDK plan](../../plans/pipedream-connect-sdk.md)

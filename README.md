@@ -137,4 +137,5 @@ coverage, pagination, lossless models, and proxy behaviour.
 Read the [webhook protocol](docs/protocol/webhooks.md) for signatures and
 payloads.
 
-Read the [plans directory](plans/) for milestone status and decisions.
+Read the [follow-up items](plans/follow-ups/) for the work that waits until
+after the merge.
