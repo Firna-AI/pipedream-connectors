@@ -47,6 +47,22 @@ A retrieve operation MUST return the requested resource identity or an error.
 A response that has a different identity from the request MUST be rejected as
 an internal identity error.
 
+## Component type
+
+A component type of `trigger` or `source` in a response MUST decode as a
+trigger.
+
+A component type in a response MUST re-encode as the string that it decoded.
+
+A component type filter for triggers MUST send `trigger`.
+
+**Decision.** Live registry triggers report the component type `source`, but
+the OpenAPI document gives `trigger`. Both values decode as one trigger value
+that hosts can match, and both keep their strings, so models stay lossless. A
+separate `source` value was rejected because Pipedream ignores a `source` list
+filter and returns every component. Following only the OpenAPI values was
+rejected because it leaves hosts without a trigger match for live triggers.
+
 ## Property configuration
 
 A configure operation accepts the component identity, external user identity,

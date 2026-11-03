@@ -51,6 +51,14 @@ triggers. `ListComponentsRequest` also carries `component_type`.
 `RunActionRequest` follows the Pipedream run-action schema and does not carry
 a blocking flag. A run that returns 202 is always accepted asynchronously.
 
+A registry `Component` reports its type as a `ComponentTypeValue`. The value
+decodes both `trigger` and `source` as a trigger and keeps the original
+string, so the component re-encodes unchanged. `ComponentTypeValue::kind`
+gives the `ComponentType` to match on. List filters take a `ComponentType`,
+and `ComponentType::Trigger` sends `trigger`. The
+[catalog protocol](../../docs/protocol/resources/catalog.md#component-type)
+gives the reason.
+
 Trigger callback URLs are sent to Pipedream unchanged. The SDK does not inspect,
 normalize, or reject their contents.
 
