@@ -1629,9 +1629,11 @@ Depends on: Milestone 17.
   - After the component type change, every live test passed on 2026-11-03,
     and every CLI command passed. The Calendar lifecycle test needed one fix:
     Pipedream rejects a webhook URL on a private or reserved IP address.
-- [ ] Review the diff since `9c6cddb` with the `implementation-review` skill
+- [x] Review the diff since `9c6cddb` with the `implementation-review` skill
       after the push. Apply the fix rule: fix the `fix now` findings, record
       follow-up items for the rest, re-review once, and report.
+      Evidence: `.context/reviews/calummoore/pipedream-rust-sdk-plan/`.
+  - Review: finding 91, fixed in `9c645c6`. Re-review: no findings.
 - [x] Review the diff since `198d2ab` with the `implementation-review` skill
       after the push. Apply the fix rule: fix the `fix now` findings, record
       follow-up items for the rest, re-review once, and report.
